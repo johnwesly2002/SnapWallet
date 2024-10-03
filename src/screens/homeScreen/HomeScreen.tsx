@@ -4,12 +4,12 @@ import { HomeStyle } from "./HomeStyles";
 import CardList from "../../components/CardListComponent/CardList";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserDetailsData } from "../../redux/slices/userSlice";
+import { imagePaths } from "../../constants/emojis";
 const HomeScreen = () => {
     const dispatch = useDispatch();
     const userDetails = useSelector(selectUserDetailsData);
     useEffect(() => {
         dispatch({ type: 'fetchUsers' });
-        console.log(userDetails);
     },[dispatch])
     return(
         <ScrollView>
@@ -17,7 +17,7 @@ const HomeScreen = () => {
                     <Text style={HomeStyle.HeadingText}>{userDetails.length > 0 ? `Hello, ${userDetails[0].username}` : 'Hello, Guest'}</Text>
                     <View style={HomeStyle.ProfileImageView} >
                     <Image
-                        source={require(`../../../assets/${userDetails[0].profilePic}.png`)}
+                        source={userDetails[0] ? imagePaths[userDetails[0].profilePic] : null}
                         style={HomeStyle.ProfileImage}
                     />
                     </View>

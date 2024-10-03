@@ -23,8 +23,8 @@ HeaderContainer: {
 },
 ProfileImage: {
    margin: 5,
-   width: 40,
-   height: 40,
+   width: 45,
+   height: 45,
 },
 ProfileImageView: {
    width: 55,

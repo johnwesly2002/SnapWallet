@@ -14,7 +14,7 @@ export function Card({ cardData, cardHeight, cardPadding }: any) {
 
   return (
     <LinearGradient
-    colors={[cardData.color, '#000']}
+    colors={[cardData.cardColor, '#000']}
     start={{ x: 0.0, y: 0.0 }} 
     end={{ x: 1.0, y: 1.0 }}
     style={[styles.card, { height: cardHeight, marginBottom: cardPadding }]}

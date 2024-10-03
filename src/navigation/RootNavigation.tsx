@@ -24,8 +24,6 @@ const RootNavigation = () => {
         tabBarStyle: {
           height: 60,
           paddingBottom: 10,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
           position: 'absolute',
           overflow:'hidden',
           borderTopWidth: 0,
