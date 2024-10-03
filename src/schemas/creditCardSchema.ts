@@ -1,4 +1,5 @@
 import { Realm } from "@realm/react";
+import User from "./userSchema";
 
 
 
@@ -9,6 +10,7 @@ class creditCard extends Realm.Object<creditCard>{
     type!: string;
     expiry!: string;
     cvc!: string;
+    user!: User | null;
     cardColor!: string;
     isFlipped!: boolean;
     cardStatus!: boolean
@@ -21,6 +23,7 @@ class creditCard extends Realm.Object<creditCard>{
           type: 'string',
           expiry: 'string',
           cvc: 'string',
+          user: 'User',
           cardColor: 'string',
           isFlipped: 'bool',
           cardStatus: 'bool'

@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { selectUserDetailsData } from "../../redux/slices/userSlice";
+import { CardAdd } from "../../services/cardService";
 
 const useAddCard = () => {
     const [cardData, setCardData] = useState({
@@ -10,7 +13,11 @@ const useAddCard = () => {
         cardColor: '',
         isFlipped: false,
       });
-    
+    const dispatch = useDispatch();
+    const userDetails = useSelector(selectUserDetailsData);
+    useEffect(() => {
+      dispatch({type: 'fetchUsers'});
+    },[dispatch])
     
       // Function to format the card number into groups of 4 digits
       const formatCardNumber = (number: any) => {
@@ -101,6 +108,8 @@ const useAddCard = () => {
       };
       const handleAddCard = () => {
         console.log("cardData: ",cardData);
+        CardAdd(cardData, userDetails[0]._id);
+        dispatch({type: 'FetchCardData'});
       }
     
       const flipCard = () => {
