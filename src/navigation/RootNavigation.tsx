@@ -9,6 +9,7 @@ import Addcardscreen from '../screens/addCardScreen/Addcardscreen';
 import ProfileScreen from '../screens/profileScreen/ProfileScreen';
 import Colors from '../constants/colors';
 import { BlurView } from '@react-native-community/blur';
+import HomeStack from './Stacks/HomeStack';
 const Tab = createBottomTabNavigator();
 const RootNavigation = () => {
     const isFocused = useIsFocused();
@@ -35,7 +36,7 @@ const RootNavigation = () => {
         blurAmount={30}
       ></BlurView>,
     }}>
-        <Tab.Screen name='home' component={homeScreen}
+        <Tab.Screen name='home' component={HomeStack}
         options={{
             tabBarIcon: ({focused}) => {
             if (!isFocused) return null;

@@ -32,7 +32,7 @@ export default function CardList() {
     <View style={styles.hiddenItem}>
       <TouchableOpacity 
       style={[styles.detailsButton, { height: cardHeight }]} 
-      onPress={() => showDetails(data.item.id)} 
+      onPress={() => showDetails(data.item)} 
     >
       <Icon name='credit-card-lock-outline' size={30}></Icon>
       <Text style={styles.detailsText}>Details</Text>

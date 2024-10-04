@@ -7,8 +7,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectActiveCards, selectCardsData } from "../../redux/slices/cardSlice";
 import { selectedLoginId } from "../../redux/slices/LoginIdSlice";
 import { deletecreditCard } from "../../services/cardService";
+import creditCard from "../../schemas/creditCardSchema";
 type RootStackParamList = {
   addcard: undefined;
+  cardsDetails: {cardData: any};
 };
 
 const cardHeight = 200;
@@ -62,8 +64,8 @@ function useCardList() {
       dispatch({type: 'FetchCardData'});
 
     };
-    const showDetails = (cardId: Realm.BSON.ObjectId) => {
-
+    const showDetails = (cardData: creditCard) => {
+      navigation.navigate('cardsDetails', {cardData});
     }
 
     return {

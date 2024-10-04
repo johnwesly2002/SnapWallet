@@ -71,5 +71,19 @@ export const getAllCardsByUserId = async (userId: Realm.BSON.ObjectId): Promise<
       return [];
     }
   };
+
+export const getCardById = async(cardId: Realm.BSON.ObjectId) => {
+    const realm = await getDetailsfromRealm();
+    try{
+        const cards  = realm.objects<creditCard>('creditCard');
+        console.log('by Id from Realm:', cards);
+        const cardsById = Array.from(cards).filter(card => {
+            return card._id.equals(cardId);
+        });
+        return cardsById;
+    }catch(error){
+        console.log("Error while Fetching the cards Details");
+    }
+}
   
 

@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import { Image, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { HomeStyle } from "./HomeStyles";
 import CardList from "../../components/CardListComponent/CardList";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserDetailsData } from "../../redux/slices/userSlice";
 import { imagePaths } from "../../constants/emojis";
+import Icon  from "react-native-vector-icons/MaterialCommunityIcons";
 const HomeScreen = () => {
     const dispatch = useDispatch();
     const userDetails = useSelector(selectUserDetailsData);
@@ -23,6 +24,10 @@ const HomeScreen = () => {
                     </View>
                 </View>
         <CardList />
+
+        <TouchableOpacity style={HomeStyle.AddTransactionsButton}>
+            <Icon name="card-plus" size={25} style={HomeStyle.AddTransactionsIcon} />
+        </TouchableOpacity>
         <Text style={HomeStyle.SubHeading}>Your Transactions</Text>
         </ScrollView>
     );
