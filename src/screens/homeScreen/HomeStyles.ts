@@ -2,7 +2,8 @@ import { StyleSheet } from "react-native";
 import Colors  from "../../constants/colors";
 export const HomeStyle = StyleSheet.create({
  container: {
-    flex: 1
+    flex: 1,
+    position: 'relative',
  },
  HeadingText:{
     fontSize: 20,
@@ -35,7 +36,7 @@ ProfileImageView: {
 },
 AddTransactionsButton: {
    position: 'absolute',
-   bottom: -80, 
+   bottom: 80,
    right: 20,
    backgroundColor: Colors.darkRed,
    borderRadius: 15,
@@ -48,8 +49,8 @@ AddTransactionsButton: {
    shadowOffset: { width: 0, height: 2 },
    shadowOpacity: 0.8,
    shadowRadius: 2,
-   zIndex: 1
-},
+   zIndex: 1,
+ },
 AddTransactionsIcon: {
    color: '#fff',
 },

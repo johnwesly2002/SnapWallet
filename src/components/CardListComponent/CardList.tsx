@@ -79,7 +79,6 @@ export default function CardList() {
           <Text style={styles.emptyText}>No cards available</Text>
         </View>
       ) : viewAll ? (
-        <ScrollView showsVerticalScrollIndicator={false}>
           <SwipeListView
             data={cardsToShow}
             renderItem={({ item, index }) => (
@@ -99,7 +98,6 @@ export default function CardList() {
             stopRightSwipe={-75}
             stopLeftSwipe={75}
           />
-        </ScrollView>
       ) : (
         <View style={styles.container}>
           {cardsToShow.map((card, i) => (

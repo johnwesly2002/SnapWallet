@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Animated, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Animated, TouchableOpacity, Image } from 'react-native';
 import Colors from '../constants/colors';
 import { Extrapolation } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
@@ -21,8 +21,9 @@ export function Card({ cardData, cardHeight, cardPadding }: any) {
   >
     <Text style={styles.cardNumber}>{maskCardNumber(cardData.number)}</Text>
     <Text style={styles.cardType}>{cardData.type}</Text>
-    <Text style={styles.cardExpiry}>Expiry: {cardData.expiry}</Text>
+    <Text style={styles.cardExpiry}>{cardData.expiry}</Text>
     <Text style={styles.cardName}>{cardData.name}</Text>
+    <Image style={{height:40,width: 40, marginTop: 40, marginLeft: 10}} source={require('../../assets/creditcardChip1.png')} />
   </LinearGradient>
   );
 }
