@@ -13,7 +13,8 @@ class creditCard extends Realm.Object<creditCard>{
     user!: User | null;
     cardColor!: string;
     isFlipped!: boolean;
-    cardStatus!: boolean
+    cardStatus!: boolean;
+    balance!: string;
     static schema = {
         name: 'creditCard',
         properties: {
@@ -26,7 +27,8 @@ class creditCard extends Realm.Object<creditCard>{
           user: 'User',
           cardColor: 'string',
           isFlipped: 'bool',
-          cardStatus: 'bool'
+          cardStatus: 'bool',
+          balance: 'string',
         },
         primaryKey: '_id',
       };

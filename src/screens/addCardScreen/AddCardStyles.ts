@@ -6,6 +6,17 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: Colors.black,
   },
+  HeadingText:{
+    fontSize: 20,
+    marginLeft: 10,
+    color: Colors.white,
+    fontFamily: 'Poppins-SemiBold',
+},
+HeaderContainer: {
+   flexDirection: 'row',
+   justifyContent: 'space-between',
+   padding: 10,
+},
   cardSection: {
     marginBottom: 30,
   },
@@ -48,7 +59,6 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flex: 1,
-    marginTop: '60%'
   },
   input: {
     height: 50,
@@ -107,7 +117,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: Colors.white,
     borderRadius: 5,
-    marginTop: '40%',
+    marginTop: '5%',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 8,
@@ -117,7 +127,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     flex: 1, 
     fontSize: 18,
-    textAlign: 'center',
   },
   Icon: {
     marginLeft: 10,

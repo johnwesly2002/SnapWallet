@@ -18,16 +18,20 @@ type RootStackParamList = {
 
 // Define the type for the image paths
 const imagePaths: { [key: string]: any } = {
-    'emoji3': require('../../../assets/emoji3.png'),
-    'emoji4': require('../../../assets/emoji4.png'),
-    'emoji5': require('../../../assets/emoji5.png'),
-    'emoji14': require('../../../assets/emoji14.png'),
-    'emoji7': require('../../../assets/emoji7.png'),
-    'emoji16': require('../../../assets/emoji16.png'),
-    'emoji9': require('../../../assets/emoji9.png'),
-    'emoji10': require('../../../assets/emoji10.png'),
-    'emoji17': require('../../../assets/emoji17.png'),
-    'emoji2': require('../../../assets/emoji2.png'),
+    'emoji1': require('../../../assets/emoji1.jpg'),
+    'emoji2': require('../../../assets/emoji2.jpg'),
+    'emoji3': require('../../../assets/emoji3.jpg'),
+    'emoji4': require('../../../assets/emoji4.jpg'),
+    'emoji5': require('../../../assets/emoji5.jpg'),
+    'emoji6': require('../../../assets/emoji6.jpg'),
+    'emoji7': require('../../../assets/emoji7.jpg'),
+    'emoji8': require('../../../assets/emoji8.jpg'),
+    'emoji9': require('../../../assets/emoji9.jpg'),
+    'emoji10': require('../../../assets/emoji10.jpg'),
+    'emoji11': require('../../../assets/emoji11.jpg'),
+    'emoji12': require('../../../assets/emoji12.jpg'),
+
+
 };
 
 // Use the keys of the imagePaths as the array for the carousel
@@ -144,8 +148,8 @@ const styles = StyleSheet.create({
     },
     image: {
         borderWidth: 2,
-        width: 200,
-        height: 200,
+        width: 150,
+        height: 150,
         borderRadius: 100,
     },
     skipContainer: {

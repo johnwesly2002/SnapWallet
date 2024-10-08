@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableWithoutFeedback, Keyboard, TouchableHighlight, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableWithoutFeedback, Keyboard, TouchableHighlight, TouchableOpacity, ScrollView } from 'react-native';
 import FlipCard from 'react-native-flip-card';
 import Colors from '../../constants/colors';
 import styles from './AddCardStyles';
@@ -11,9 +11,17 @@ const AddCardScreen = () => {
     handleInputChange,
     handleAddCard,
     flipCard,
+    formatNumber,
   } = useAddCard();
 
   return (
+    <>
+        <View style={styles.HeaderContainer}>
+          <Text style={styles.HeadingText}>
+            Add Card
+          </Text>
+      </View>
+    <ScrollView showsVerticalScrollIndicator={false}>
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         {/* Flip Card Section */}
@@ -67,6 +75,14 @@ const AddCardScreen = () => {
             style={styles.input}
             onChangeText={(value) => handleInputChange('name', value)}
           />
+          <TextInput
+            placeholder="Current Balance"
+            keyboardType='numeric'
+            placeholderTextColor={Colors.white}
+            style={styles.input}
+            value={formatNumber(cardData.balance)}
+            onChangeText={(value) => handleInputChange('balance', value)}
+          />
           <View style={styles.row}>
             <TextInput
               placeholder="MM/YY"
@@ -94,6 +110,8 @@ const AddCardScreen = () => {
         </View>
       </View>
     </TouchableWithoutFeedback>
+    </ScrollView>
+    </>
   );
 };
 

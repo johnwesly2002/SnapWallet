@@ -46,9 +46,14 @@ export default function CardList() {
       </TouchableOpacity>
     </View>
   );
+  const calculateHeight = (cardsToShowLength: number) => {
+
+    return (cardsToShowLength) * (170);
+  };
+  
 
   return (
-    <View style={[styles.root, { height: viewAll ? 'auto' : 440 }]}>
+    <View style={[styles.root, { height: viewAll ? 'auto' : 440}]}>
       <View style={styles.topSection}>
         <Text style={styles.headingText}>Your Cards</Text>
         <View style={styles.buttonContainer}>
@@ -79,7 +84,6 @@ export default function CardList() {
           <Text style={styles.emptyText}>No cards available</Text>
         </View>
       ) : viewAll ? (
-        <ScrollView showsVerticalScrollIndicator={false}>
           <SwipeListView
             data={cardsToShow}
             renderItem={({ item, index }) => (
@@ -99,7 +103,6 @@ export default function CardList() {
             stopRightSwipe={-75}
             stopLeftSwipe={75}
           />
-        </ScrollView>
       ) : (
         <View style={styles.container}>
           {cardsToShow.map((card, i) => (

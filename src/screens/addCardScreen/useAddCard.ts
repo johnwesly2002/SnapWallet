@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserDetailsData } from "../../redux/slices/userSlice";
 import { CardAdd } from "../../services/cardService";
+import Snackbar from "react-native-snackbar";
+import colors from "../../constants/colors";
 
 const useAddCard = () => {
     const [cardData, setCardData] = useState({
@@ -11,6 +13,7 @@ const useAddCard = () => {
         cvc: '',
         type: '',
         cardColor: '',
+        balance: '',
         isFlipped: false,
       });
     const dispatch = useDispatch();
@@ -103,6 +106,9 @@ const useAddCard = () => {
         if (field === 'expiry') {
           updatedData.expiry = formatExpiryDate(value);
         }
+        if(field == 'balance'){
+          updatedData.balance = removeCommas(value);
+        }
     
         setCardData(updatedData);
       };
@@ -110,7 +116,20 @@ const useAddCard = () => {
         console.log("cardData: ",cardData);
         CardAdd(cardData, userDetails[0]._id);
         dispatch({type: 'FetchCardData'});
+        Snackbar.show({
+          text: "Card Successfully Added",
+          backgroundColor: colors.green,
+          duration: 1500,
+        })
       }
+      const formatNumber = (num: string) => {
+        if (!num) return num;
+        return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    };
+    
+    const removeCommas = (str: string) => {
+        return str.replace(/,/g, '');
+    };
     
       const flipCard = () => {
         setCardData((prevData) => ({ ...prevData, isFlipped: !prevData.isFlipped }));
@@ -120,6 +139,7 @@ const useAddCard = () => {
         handleInputChange,
         handleAddCard,
         flipCard,
+        formatNumber,
     };
 };
 export default useAddCard;

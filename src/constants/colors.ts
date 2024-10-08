@@ -31,5 +31,6 @@ export default {
     lightviolet: '#C4B0FF',
     disableColor: '#A5C9CA',
     darkRed: '#b30000',
+    skyBlue: '#87CEEB',
   };
   
