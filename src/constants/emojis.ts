@@ -11,6 +11,4 @@ export const imagePaths: { [key: string]: any } = {
     'emoji10': require('../../assets/emoji10.jpg'),
     'emoji11': require('../../assets/emoji11.jpg'),
     'emoji12': require('../../assets/emoji12.jpg'),
-
-
 }

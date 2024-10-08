@@ -46,8 +46,6 @@ const HomeScreen = () => {
                     />
                 </View>
             </View>
-
-            {/* Wrapper View to keep the button at bottom */}
             <View style={HomeStyle.ScrollViewContainer}>
                 <ScrollView contentContainerStyle={HomeStyle.scrollContent}>
                     <CardList />
