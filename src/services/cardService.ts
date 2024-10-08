@@ -18,6 +18,7 @@ export const CardAdd = async (cardDetails: any, userId: Realm.BSON.ObjectId) => 
         cardColor: cardDetails.cardColor,
         user: user,
         isFlipped: cardDetails.isFlipped,
+        balance: cardDetails.balance,
         cardStatus: true
         });
         console.log("card Added Successfully");
@@ -83,6 +84,21 @@ export const getCardById = async(cardId: Realm.BSON.ObjectId) => {
         return cardsById;
     }catch(error){
         console.log("Error while Fetching the cards Details");
+    }
+}
+
+export const updateCardDetails = async(newBalance: string,cardId: Realm.BSON.ObjectId) =>{
+    const realm = await getDetailsfromRealm();
+    try{
+        realm.write(() => {
+            const Card = realm.objectForPrimaryKey('creditCard',cardId );
+            if(Card){
+                Card.balance = newBalance;
+            }
+        })
+
+    }catch(error){
+        console.log("Error while Updating the Cards details");
     }
 }
   

@@ -46,9 +46,14 @@ export default function CardList() {
       </TouchableOpacity>
     </View>
   );
+  const calculateHeight = (cardsToShowLength: number) => {
+
+    return (cardsToShowLength) * (170);
+  };
+  
 
   return (
-    <View style={[styles.root, { height: viewAll ? 'auto' : 440 }]}>
+    <View style={[styles.root, { height: viewAll ? 'auto' : 440}]}>
       <View style={styles.topSection}>
         <Text style={styles.headingText}>Your Cards</Text>
         <View style={styles.buttonContainer}>

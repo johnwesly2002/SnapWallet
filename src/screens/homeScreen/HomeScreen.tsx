@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Image, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { HomeStyle } from "./HomeStyles";
 import CardList from "../../components/CardListComponent/CardList";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,9 +8,12 @@ import { imagePaths } from "../../constants/emojis";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import Snackbar from "react-native-snackbar";
+import colors from "../../constants/colors";
+
 type RootStackParamList = {
     addBillsPayments: undefined;
-  };
+};
 
 const HomeScreen = () => {
     const dispatch = useDispatch();
@@ -19,11 +22,16 @@ const HomeScreen = () => {
 
     useEffect(() => {
         dispatch({ type: 'fetchUsers' });
+        Snackbar.show({
+            text: `Welcome Back`,
+            backgroundColor: colors.skyBlue,
+            duration: 1500,
+        });
     }, [dispatch]);
 
-    const handleBillsPayments = () =>{
+    const handleBillsPayments = () => {
         navigation.navigate('addBillsPayments');
-    }
+    };
 
     return (
         <SafeAreaView style={HomeStyle.container}>
@@ -39,15 +47,23 @@ const HomeScreen = () => {
                 </View>
             </View>
 
-            <CardList />
+            {/* Wrapper View to keep the button at bottom */}
+            <View style={HomeStyle.ScrollViewContainer}>
+                <ScrollView contentContainerStyle={HomeStyle.scrollContent}>
+                    <CardList />
 
-            <TouchableOpacity style={HomeStyle.AddTransactionsButton} onPress={handleBillsPayments}>
-                <Icon name="card-plus" size={25} style={HomeStyle.AddTransactionsIcon} />
-            </TouchableOpacity>
+                    <Text style={HomeStyle.SubHeading}>Transactions</Text>
+                    {/* Add more content if needed */}
+                </ScrollView>
 
-            <Text style={HomeStyle.SubHeading}>Bills & Payments</Text>
+                {/* Button stays at the bottom */}
+                <TouchableOpacity style={HomeStyle.AddTransactionsButton} onPress={handleBillsPayments}>
+                    <Icon name="card-plus" size={25} style={HomeStyle.AddTransactionsIcon} />
+                </TouchableOpacity>
+            </View>
         </SafeAreaView>
     );
 };
 
 export default HomeScreen;
+
