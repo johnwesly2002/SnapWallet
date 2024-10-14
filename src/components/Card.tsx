@@ -4,7 +4,7 @@ import Colors from '../constants/colors';
 import { Extrapolation } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 
-export function Card({ cardData, cardHeight, cardPadding }: any) {
+export function Card({ cardData, cardHeight, cardPadding, homescreenView }: any) {
   
   const maskCardNumber = (number: String) => {
     const lastFourDigits = number.slice(-4);
@@ -17,7 +17,7 @@ export function Card({ cardData, cardHeight, cardPadding }: any) {
     colors={[cardData.cardColor, '#000']}
     start={{ x: 0.0, y: 0.0 }} 
     end={{ x: 1.0, y: 1.0 }}
-    style={[styles.card, { height: cardHeight, marginBottom: cardPadding }]}
+    style={[styles.card, { height: homescreenView ? 180 : cardHeight, marginBottom: 28 }]}
   >
     <Text style={styles.cardNumber}>{maskCardNumber(cardData.number)}</Text>
     <Text style={styles.cardType}>{cardData.type}</Text>
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   },
   cardNumber: {
     fontSize: 18,
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'IBMPlexMono-Medium',
     color: '#fff',
     letterSpacing: 2,
     marginBottom: 15,

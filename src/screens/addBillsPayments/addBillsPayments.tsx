@@ -7,11 +7,14 @@ import { selectActiveCards } from "../../redux/slices/cardSlice";
 import { selectedLoginId } from "../../redux/slices/LoginIdSlice";
 import LinearGradient from "react-native-linear-gradient";
 import { BlurView } from "@react-native-community/blur";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import DropDownPicker from "react-native-dropdown-picker";
 import { updateCardDetails } from "../../services/cardService";
 import Snackbar from "react-native-snackbar";
+import moment from 'moment';
+import { createExpenses } from "../../services/expensesService";
+import { selectUserDetailsData } from "../../redux/slices/userSlice";
 type RootStackParamList = {
     homeScreen: undefined;
     cardsDetails: {cardData: any};
@@ -42,6 +45,14 @@ const billCategories: BillCategory[] = [
     { label: 'Fees', value: 'fees', icon: () => <Icon name="account-cash" size={20} color={colors.white} /> },
     { label: 'Rent', value: 'rent', icon: () => <Icon name="home" size={20} color={colors.white} /> },
 ];
+export type addBillsPaymentsProp = RouteProp<
+  {
+    addBillsPayments: {
+        TransactionGroup: any;
+    };
+  },
+  "addBillsPayments"
+>;
 
 
 const AddBillPayments = () => {
@@ -51,15 +62,25 @@ const AddBillPayments = () => {
     const cards: Card[] = useSelector(selectActiveCards);
     const [selectedCard, setSelectedCard] = useState<Card>();
     const [open, setOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [date,setDate] = useState(moment().format('YYYY-MM-DDTHH:mm:ss'));
     const [value, setValue] = useState(category);
+    const [Description, setDescription] = useState('');
     const [items, setItems] = useState(billCategories.map(cat => ({ ...cat, icon: cat.icon })));
     const userId = useSelector(selectedLoginId);
+    const userDetails = useSelector(selectUserDetailsData);
     const dispatch = useDispatch();
+    const route = useRoute<addBillsPaymentsProp>()
+    const TransactionGroup = route.params;
+    const transactionGroupsArray = Array.isArray(TransactionGroup.TransactionGroup)
+    ? TransactionGroup.TransactionGroup
+    : [TransactionGroup.TransactionGroup];
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     useEffect(() => {
         if (userId) {
             dispatch({ type: 'FetchCardData' });
         }
+        console.log("TransactionGroups",TransactionGroup);
     }, [userId, dispatch]);
 
     const handleAddBill = () => {
@@ -75,6 +96,14 @@ const AddBillPayments = () => {
         } else {
             const updatedBalance = (numericBalance - numericAmount).toFixed(2); 
             updateCardDetails(updatedBalance,selectedCard!._id);
+            createExpenses(
+                userDetails[0]._id,
+                Description,
+                numericAmount,
+                TransactionGroup?.TransactionGroup,
+                selectedCard,
+                date);
+            dispatch({type: 'FetchExpensesData'});
             setAmount('');
             setCategory(billCategories[0].value);
             Snackbar.show({
@@ -168,7 +197,6 @@ const AddBillPayments = () => {
         </Modal>
         );
     };
-    
 
     return (
         <>
@@ -198,24 +226,20 @@ const AddBillPayments = () => {
                     value={formatNumber(amount)}
                     onChangeText={handleAmountChange}
                 />
-                <DropDownPicker
-                    open={open}
-                    value={value}
-                    items={items}
-                    setOpen={setOpen}
-                    setValue={setValue}
-                    setItems={setItems}
-                    modalAnimationType = "fade"
-                    placeholder="Select Category"
-                    style={styles.dropdown}
-                    TickIconComponent = {() => <Icon name="check" size={20} style={{color: colors.white}}/>}
-                    textStyle={styles.dropdownText}
-                    listItemLabelStyle={styles.dropdownLabel}
-                    selectedItemContainerStyle={{backgroundColor: '#333',borderRadius: 8}}
-                    dropDownContainerStyle={styles.dropdownContainer}
-                    labelStyle = {styles.customItemLabelStyle}
-                    arrowIconStyle={{tintColor: colors.white} as any}
+                <TextInput
+                    style={styles.input}
+                    placeholder="Description"
+                    onChangeText={(value) => setDescription(value)}
                 />
+                <View style={styles.tagContainer}>
+                    {transactionGroupsArray.map((group, index) => (
+                <View key={index} style={[styles.tag, { backgroundColor: colors.white }]}>
+                    <Icon name={group.icon} size={18} color={colors.black} />
+                    <Text style={styles.tagText}>{group.name}</Text>
+                    <Icon name="check-circle" size={20} color={colors.black} />
+                </View>
+            ))}
+        </View>
 
             </View>
 
@@ -246,11 +270,25 @@ const styles = StyleSheet.create({
         color: colors.white,
         fontFamily: "Poppins-SemiBold",
     },
+    tagContainer:{ flexDirection: 'row',
+     flexWrap: 'wrap',
+      marginVertical: 10
+     },
+    tag: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        padding: 8, 
+        borderRadius: 20,
+         margin: 4 
+        },
+    tagIcon: { marginRight: 4 },
+    tagText: { color: colors.black, fontSize: 12,fontFamily: 'Poppins-Medium' },
     input: {
         height: 50,
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 8,
+        marginTop: 15,
         paddingHorizontal: 10,
         color: colors.white,
         fontFamily: 'Poppins-Medium',

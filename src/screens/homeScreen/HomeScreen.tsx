@@ -10,6 +10,7 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Snackbar from "react-native-snackbar";
 import colors from "../../constants/colors";
+import QuickTransactions from "../../components/quick Transactions/QuickTransactions";
 
 type RootStackParamList = {
     addBillsPayments: undefined;
@@ -27,6 +28,7 @@ const HomeScreen = () => {
             backgroundColor: colors.skyBlue,
             duration: 1500,
         });
+        dispatch({type: 'FetchExpensesData'});
     }, [dispatch]);
 
     const handleBillsPayments = () => {
@@ -47,11 +49,13 @@ const HomeScreen = () => {
                 </View>
             </View>
             <View style={HomeStyle.ScrollViewContainer}>
-                <ScrollView contentContainerStyle={HomeStyle.scrollContent}>
+                <ScrollView contentContainerStyle={HomeStyle.scrollContent} showsVerticalScrollIndicator={false}>
                     <CardList />
 
-                    <Text style={HomeStyle.SubHeading}>Transactions</Text>
-                    {/* Add more content if needed */}
+                    <QuickTransactions />
+                    <Text style={HomeStyle.HeadingText}>
+                    Payments
+                </Text>
                 </ScrollView>
 
                 {/* Button stays at the bottom */}

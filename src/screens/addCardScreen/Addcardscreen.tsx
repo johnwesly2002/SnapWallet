@@ -18,7 +18,7 @@ const AddCardScreen = () => {
     <>
         <View style={styles.HeaderContainer}>
           <Text style={styles.HeadingText}>
-            Add Card
+            Add New Card
           </Text>
       </View>
     <ScrollView showsVerticalScrollIndicator={false}>
