@@ -4,12 +4,14 @@ import cardSlice from "./slices/cardSlice";
 import LoginIdReducer from "./slices/LoginIdSlice";
 import transactionGroupsSlice from "./slices/transactionGroupsSlice";
 import ExpensesSlice from './slices/expensesSlice';
+import countrySlice from "./slices/countrySlice";
 const rootReducer = combineReducers({
     user: userReducer,
     CardAdd: cardSlice,
     LoginId: LoginIdReducer,
     transactionGroups: transactionGroupsSlice,
-    Expenses: ExpensesSlice,
+    expenses: ExpensesSlice,
+    country: countrySlice,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

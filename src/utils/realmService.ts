@@ -3,9 +3,10 @@ import { Realm } from '@realm/react';
 import User from '../schemas/userSchema';
 import transactionGroups from '../schemas/transactionGroups';
 import Expenses from '../schemas/expensesSchema';
+import Country from '../schemas/countryScehma';
 
 export const realmdb: Realm.Configuration = {
-    schema: [creditCard, User, transactionGroups, Expenses],
+    schema: [creditCard, User, transactionGroups, Expenses, Country],
     schemaVersion: 1,
 };
 export const getDetailsfromRealm = async () => {

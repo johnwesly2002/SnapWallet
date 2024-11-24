@@ -16,13 +16,13 @@ const Tab = createBottomTabNavigator();
 const RootNavigation = ({ route }: { route: Partial<Route<string>> }) => {
   const isFocused = useIsFocused();
 
-  // Function to determine if tab bar should be hidden
   const getTabBarVisibility = (route: Partial<Route<string>>) => {
     const routeName = getFocusedRouteNameFromRoute(route);
-    if (routeName?.includes('createTransactionsGroup')) {
-      return 'none'; // Hide tab bar for this route
+    if (routeName?.includes('createTransactionsGroup') ||
+        routeName?.includes('addBillsPayments')) {
+      return 'none';
     }
-    return 'flex'; // Show tab bar for all other routes
+    return 'flex';
   };
 
   return (

@@ -15,6 +15,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Snackbar from "react-native-snackbar";
 import Colors from "../../constants/colors";
 import { RouteProp, useRoute } from "@react-navigation/native";
+import colors from "../../constants/colors";
 
 export type CardDetailsProp = RouteProp<
   {
@@ -277,7 +278,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#333',
+    backgroundColor: colors.blackBackgroundColor,
     padding: 5,
     borderRadius: 15,
     margin: 10,
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
     width: '44%',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#333',
+    backgroundColor: colors.blackBackgroundColor,
     padding: 5,
     borderRadius: 15,
     margin: 10,

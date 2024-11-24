@@ -1,186 +1,146 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import colors from '../../constants/colors';
 import { Categories } from '../../constants/categories';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import Snackbar from 'react-native-snackbar';
 import { deletetransactionGroups, transactionGroupsAdd } from '../../services/transactionGroupsService';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUserDetailsData } from '../../redux/slices/userSlice';
 import { selectActiveTransactionGroups } from '../../redux/slices/transactionGroupsSlice';
-
+import { StackNavigationProp } from '@react-navigation/stack';
 type CategoryType = {
   _id: number;
   name: string;
   icon: string;
   Color: string;
+  key: boolean;
 };
 
 type RootStackParamList = {
   homeScreen: undefined;
 };
-
-const Category = React.memo(({ category, onPress, isSelected }: any) => (
+const Category = React.memo(({ category, onPress, isSelected } : any) => (
   <TouchableOpacity style={[styles.category, { backgroundColor: colors.white }]} onPress={onPress}>
     <MaterialCommunityIcons name={category.icon} size={24} color={colors.black} />
     <Text style={styles.cardText}>{category.name}</Text>
-    {isSelected ? (
-      <View style={styles.badgeContainer}>
-        <MaterialIcons name="remove-circle" size={20} color={colors.red} />
-      </View>
-    ) : (
-      <View style={styles.badgeContainer}>
-        <MaterialIcons name="add-circle" size={20} color={colors.green} />
-      </View>
-    )}
+    <View style={styles.badgeContainer}>
+      <MaterialIcons name={isSelected ? 'remove-circle' : 'add-circle'} size={20} color={isSelected ? colors.red : colors.green} />
+    </View>
   </TouchableOpacity>
 ));
 
-
 const CreateTransactionGroups = () => {
   const [selectedCategories, setSelectedCategories] = useState<CategoryType[]>([]);
-  const [allCategories, setAllCategories] = useState(Categories);
-  const [isModified, setIsModified] = useState(false);
-
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const dispatch = useDispatch();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const userDetails = useSelector(selectUserDetailsData);
-  const TransactionGroups = useSelector(selectActiveTransactionGroups);
+  const transactionGroups = useSelector(selectActiveTransactionGroups);
+  const [isModified, setIsModified] = useState(false);
+  const isLoading = useSelector((state: any) => state.transactionGroups.isLoading);
+  useEffect(() => {
+    if (!transactionGroups.length) {
+      dispatch({ type: 'FetchTransactionGroupsData' });
+    }
+  }, [dispatch, transactionGroups]);
 
   useEffect(() => {
-    dispatch({ type: 'fetchUsers' });
-    dispatch({ type: 'FetchTransactionGroupsData' });
-  }, [dispatch]);
+    setSelectedCategories(transactionGroups);
+  }, [transactionGroups]);
 
-  useEffect(() => {
-    setSelectedCategories(TransactionGroups);
-  }, [TransactionGroups]);
-
-  const availableCategories = useMemo(() =>
-    Categories.filter(category => !selectedCategories.some(selected => selected.name === category.name)),
+  const availableCategories = useMemo(
+    () => Categories.filter(category => !selectedCategories.some(selected => selected.name === category.name)),
     [selectedCategories]
   );
 
-  const moveToSelected = useCallback((category: CategoryType) => {
-    setSelectedCategories((prev) => [...prev, category]);
-    setAllCategories((prev) => prev.filter(item => item.name !== category.name));
-    setIsModified(true);
-  }, []);
+  const moveToSelected = useCallback((category: any) => {
+    if (!selectedCategories.some(item => item.name === category.name)) {
+      setSelectedCategories(prev => [...prev, category]);
+      setIsModified(true);
+    }
+  }, [selectedCategories]);
+  
 
-  const moveToAll = useCallback((category: CategoryType) => {
-    setAllCategories((prev) => [...prev, category]);
-    setSelectedCategories((prev) => prev.filter(item => item.name !== category.name));
+  const moveToAll = useCallback((category: { name: any; }) => {
+    setSelectedCategories(prev => prev.filter(item => item.name !== category.name));
     setIsModified(true); 
   }, []);
 
   const handleUpdate = useCallback(() => {
-    const newlySelectedCategories = selectedCategories.filter(
-      category => !TransactionGroups.some((transactionGroup: { name: string; }) => transactionGroup.name === category.name)
+    const newCategories = selectedCategories.filter(
+      category => !transactionGroups.some((group: { name: any; }) => group.name === category.name)
     );
-  
-    const removedCategories = TransactionGroups.filter(
-      (transactionGroup: { name: string }) => !selectedCategories.some(category => category.name === transactionGroup.name)
+    const removedCategories = transactionGroups.filter(
+      (      group: { name: any; }) => !selectedCategories.some(category => category.name === group.name)
     );
-  
-    if (newlySelectedCategories.length > 0) {
-      console.log("new Transactions", newlySelectedCategories);
-      transactionGroupsAdd(newlySelectedCategories, userDetails[0]._id);
-    }
-  
-    if (removedCategories.length > 0) {
-      console.log("removed Transactions", removedCategories);
-      deletetransactionGroups(removedCategories);
 
-    }
-  
-    if (newlySelectedCategories.length > 0 || removedCategories.length > 0) {
-      dispatch({ type: "FetchTransactionGroupsData" });
+    if (newCategories.length || removedCategories.length) {
+      if (newCategories.length) transactionGroupsAdd(newCategories, userDetails[0]._id);
+      if (removedCategories.length) deletetransactionGroups(removedCategories);
       setIsModified(false);
-  
       Snackbar.show({
-        text: `Changes saved successfully`,
+        text: 'Changes saved successfully',
         backgroundColor: colors.green,
         duration: 1500,
       });
+
+      dispatch({ type: 'FetchTransactionGroupsData' });
     } else {
       Snackbar.show({
-        text: `No changes to save`,
+        text: 'No changes to save',
         backgroundColor: colors.red,
         duration: 1500,
       });
     }
-  }, [selectedCategories, TransactionGroups, userDetails, dispatch]);
-  
-  
+  }, [selectedCategories, transactionGroups, userDetails, dispatch]);
 
-  const handleNavigation = useCallback(() => {
-    navigation.navigate('homeScreen');
-  }, [navigation]);
+  const renderCategory = useCallback(({ item }: any) => {
+    const isSelected = selectedCategories.some(category => category.name === item.name);
+    return (
+      <Category
+        category={item}
+        onPress={() => (isSelected ? moveToAll(item) : moveToSelected(item))}
+        isSelected={isSelected}
+      />
+    );
+  }, [selectedCategories, moveToSelected, moveToAll]);
+  
 
   return (
     <>
-      <TouchableOpacity style={styles.HeaderContainer} onPress={handleNavigation}>
-        <MaterialIcons name='arrow-back-ios' size={20} color={colors.white} style={styles.headerBackIcon} />
-        <Text style={styles.HeadingText}>Transaction Groups</Text>
+      <TouchableOpacity style={styles.HeaderContainer} onPress={() => navigation.navigate('homeScreen')}>
+        <MaterialIcons name="arrow-back-ios" size={20} color={colors.white} style={styles.headerBackIcon} />
+        <Text style={styles.HeadingText}>Quick Transactions</Text>
       </TouchableOpacity>
       <FlatList
         data={[{ key: 'selected' }, { key: 'all' }]}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => {
-          if (item.key === 'selected') {
-            return (
-              <View style={styles.column}>
-                <Text style={styles.header}>Selected Categories</Text>
-                {selectedCategories.length === 0 ? (
-                  <View style={styles.emptyView}>
-                    <Text style={styles.emptyText}>No categories selected.</Text>
-                  </View>
-                ) : (
-                  <FlatList
-                    data={selectedCategories}
-                    contentContainerStyle={styles.listContent}
-                    numColumns={4}
-                    keyExtractor={(item) => item.name}
-                    nestedScrollEnabled={true}
-                    renderItem={({ item }) => (
-                      <Category category={item} onPress={() => moveToAll(item)} isSelected={true} />
-                    )}
-                  />
-                )}
-              </View>
-            );
-          } else {
-            return (
-              <View style={styles.column}>
-                <Text style={styles.header}>All Categories</Text>
-                <FlatList
-                  data={availableCategories}
-                  contentContainerStyle={styles.listContent}
-                  numColumns={4}
-                  keyExtractor={(item) => item.name}
-                  nestedScrollEnabled={true}
-                  renderItem={({ item }) => (
-                    <Category category={item} onPress={() => moveToSelected(item)} isSelected={false} />
-                  )}
-                />
-              </View>
-            );
-          }
-        }}
-        keyExtractor={(item) => item.key}
+        keyExtractor={item => item.key}
+        renderItem={({ item }) => (
+          <View style={styles.column}>
+            <Text style={styles.header}>{item.key === 'selected' ? 'Selected Categories' : 'All Categories'}</Text>
+            <FlatList
+              data={item.key === 'selected' ? selectedCategories : availableCategories}
+              keyExtractor={(item, index) => `${item.name}-${index}`}
+              showsVerticalScrollIndicator = {false}
+              numColumns={4}
+              windowSize={5}
+              removeClippedSubviews={true}
+              renderItem={renderCategory}
+            />
+          </View>
+        )}
       />
-
-      {isModified && (
-        <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
-          <Text style={styles.updateButtonText}>Update Groups</Text>
-        </TouchableOpacity>
-      )}
+       {isModified && (
+      <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
+        <Text style={styles.updateButtonText}>Update Groups</Text>
+      </TouchableOpacity>
+       )}
     </>
   );
 };
+
 
 const styles = StyleSheet.create({
   scrollContainer: {
@@ -201,11 +161,11 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   category: {
-    borderRadius: 30,
-    height: 55,
-    width: 55,
+    borderRadius: 20,
+    height: 60,
+    width: 60,
     margin: 15,
-    paddingTop: 10,
+    padding: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },

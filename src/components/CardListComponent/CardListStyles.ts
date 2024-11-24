@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 import colors from "../../constants/colors";
 const styles = StyleSheet.create({
   root: {
-    backgroundColor: colors.lightgray,
+    backgroundColor: colors.blackBackgroundColor,
     borderRadius: 20,
     margin: 10,
   },

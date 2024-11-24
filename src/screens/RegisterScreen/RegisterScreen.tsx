@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity, Alert } from "react-native";
 import Carousel from 'react-native-reanimated-carousel';
 import colors from "../../constants/colors";
 import { Text } from "react-native-animatable";
@@ -7,13 +7,12 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import CustomTextInput from "../../components/CustomTextInput";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { useDispatch } from "react-redux";
-import { createUserRequest } from "../../redux/slices/userSlice";
-import { createUser } from "../../services/userService";
 
+import { createUser } from "../../services/userService";
 const { width } = Dimensions.get('window');
 type RootStackParamList = {
     RootNavigation: undefined;
+    countrySelectionScreen: undefined;
 };
 
 // Define the type for the image paths
@@ -30,18 +29,15 @@ const imagePaths: { [key: string]: any } = {
     'emoji10': require('../../../assets/emoji10.jpg'),
     'emoji11': require('../../../assets/emoji11.jpg'),
     'emoji12': require('../../../assets/emoji12.jpg'),
-
-
 };
 
-// Use the keys of the imagePaths as the array for the carousel
 const images = Object.keys(imagePaths);
 
 const RegisterScreen = () => {
     const [selectedImage, setSelectedImage] = useState(images[0]);
     const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
     const renderItem = ({ item }: { item: string }) => {
         const isSelected = item === selectedImage;
         return (
@@ -52,23 +48,27 @@ const RegisterScreen = () => {
     };
 
     const handleRegister = async () => {
+        // Add form validation before submitting
+        if (!username) {
+            Alert.alert("Please fill all fields!");
+            return;
+        }
+
         try {
             await createUser(username, selectedImage);
-            navigation.navigate('RootNavigation'); 
+            navigation.navigate('countrySelectionScreen');
         } catch (error) {
             console.error('Error during registration:', error);
         }
     };
-    
+
     const handleSkip = async () => {
         try {
-            // await createUser('Guest', selectedImage);
-            navigation.navigate('RootNavigation');
+            navigation.navigate('countrySelectionScreen');
         } catch (error) {
             console.error('Error during skip:', error);
         }
     };
-    
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -104,7 +104,6 @@ const RegisterScreen = () => {
                 inputStyle={styles.input}
                 iconStyle={styles.icon}
             />
-
             <TouchableOpacity style={styles.continueButton} onPress={handleRegister}>
                 <Text style={styles.continueText}>Continue</Text>
                 <Icon name="keyboard-double-arrow-right" size={30} style={styles.continueIcon} />
@@ -174,7 +173,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         alignItems: 'center',
         backgroundColor: colors.white,
-        marginTop: 120, 
+        marginTop: 200,
     },
     continueText: {
         fontFamily: 'Poppins-SemiBold',
@@ -185,13 +184,53 @@ const styles = StyleSheet.create({
         color: colors.black,
     },
     inputContainer: {
-        marginTop: 20,
+        marginTop: -50,
+
     },
     input: {
         borderRadius: 10,
-        padding: 10,
+        padding: 5,
+        width: '100%',
     },
     icon: {
         color: colors.gray,
+    },
+    countryInputContainer: {
+        marginTop: 20,
+        width: '100%',
+        padding: 8,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: colors.white,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.gray,
+    },
+    modalContent: {
+        width: '100%',
+        backgroundColor: colors.blackBackgroundColor,
+        padding: 20,
+        borderTopRightRadius: 20,
+        borderTopLeftRadius: 20,
+
+    },
+    modalHeader: {
+        fontSize: 20,
+        fontFamily: 'Poppins-Bold',
+        // marginBottom: 10,
+    },
+    countryItem: {
+        padding: 10,
+    },
+    countryText: {
+        fontSize: 16,
+        fontFamily: 'Poppins-Medium',
+        color: colors.white
     },
 });

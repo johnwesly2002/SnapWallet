@@ -1,423 +1,545 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Modal, FlatList, Image } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Modal,
+  FlatList,
+  Image,
+  ScrollView,
+} from "react-native";
 import colors from "../../constants/colors";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useDispatch, useSelector } from "react-redux";
 import { selectActiveCards } from "../../redux/slices/cardSlice";
 import { selectedLoginId } from "../../redux/slices/LoginIdSlice";
-import LinearGradient from "react-native-linear-gradient";
-import { BlurView } from "@react-native-community/blur";
+import { useForm, Controller } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import DropDownPicker from "react-native-dropdown-picker";
 import { updateCardDetails } from "../../services/cardService";
 import Snackbar from "react-native-snackbar";
-import moment from 'moment';
+import moment from "moment";
 import { createExpenses } from "../../services/expensesService";
 import { selectUserDetailsData } from "../../redux/slices/userSlice";
+import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+import { selectCountryData } from "../../redux/slices/countrySlice";
+
 type RootStackParamList = {
-    homeScreen: undefined;
-    cardsDetails: {cardData: any};
-  };
+  homeScreen: undefined;
+  cardsDetails: { cardData: any };
+};
 
 interface BillCategory {
-    label: string;
-    value: string;
-    icon: () => JSX.Element;
+  label: string;
+  value: string;
+  icon: () => JSX.Element;
 }
 
 interface Card {
-    id: string;
-    _id: Realm.BSON.ObjectId;
-    number: string;
-    type: string;
-    expiry: string;
-    name: string;
-    cardColor: string;
-    balance: string;
+  id: string;
+  _id: Realm.BSON.ObjectId;
+  number: string;
+  type: string;
+  expiry: string;
+  name: string;
+  cardColor: string;
+  balance: string;
 }
 
-const billCategories: BillCategory[] = [
-    { label: 'Shopping', value: 'shopping', icon: () => <Icon name="cart" size={20} color={colors.white} /> },
-    { label: 'Travel', value: 'travel', icon: () => <Icon name="airplane" size={20} color={colors.white} /> },
-    { label: 'Recharges', value: 'recharges', icon: () => <Icon name="cellphone-wireless" size={20} color={colors.white} /> },
-    { label: 'EMI', value: 'emi', icon: () => <Icon name="cash-multiple" size={20} color={colors.white} /> },
-    { label: 'Fees', value: 'fees', icon: () => <Icon name="account-cash" size={20} color={colors.white} /> },
-    { label: 'Rent', value: 'rent', icon: () => <Icon name="home" size={20} color={colors.white} /> },
-];
 export type addBillsPaymentsProp = RouteProp<
   {
     addBillsPayments: {
-        TransactionGroup: any;
+      TransactionGroup: any;
     };
   },
   "addBillsPayments"
 >;
-
+const validationSchema = yup.object({
+  amount: yup
+    .number()
+    .typeError("Amount must be a number")
+    .positive("Amount must be greater than zero")
+    .required("Amount is required"),
+  description: yup.string().required("Description is required"),
+  selectedCard: yup.object().nullable().required("Please select a card"),
+});
+const defaultTransactionGroup = [{
+  "_id": 55,
+  "name": "Others",
+  "icon": "strategy",
+  "Color": "#33FF57",
+}];
 
 const AddBillPayments = () => {
-    const [amount, setAmount] = useState('');
-    const [category, setCategory] = useState(billCategories[0].value);
-    const [modalVisible, setModalVisible] = useState(true);
-    const cards: Card[] = useSelector(selectActiveCards);
-    const [selectedCard, setSelectedCard] = useState<Card>();
-    const [open, setOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [date,setDate] = useState(moment().format('YYYY-MM-DDTHH:mm:ss'));
-    const [value, setValue] = useState(category);
-    const [Description, setDescription] = useState('');
-    const [items, setItems] = useState(billCategories.map(cat => ({ ...cat, icon: cat.icon })));
-    const userId = useSelector(selectedLoginId);
-    const userDetails = useSelector(selectUserDetailsData);
-    const dispatch = useDispatch();
-    const route = useRoute<addBillsPaymentsProp>()
-    const TransactionGroup = route.params;
-    const transactionGroupsArray = Array.isArray(TransactionGroup.TransactionGroup)
-    ? TransactionGroup.TransactionGroup
-    : [TransactionGroup.TransactionGroup];
-    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-    useEffect(() => {
-        if (userId) {
-            dispatch({ type: 'FetchCardData' });
-        }
-        console.log("TransactionGroups",TransactionGroup);
-    }, [userId, dispatch]);
+  const [amount, setAmount] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const cards: Card[] = useSelector(selectActiveCards);
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [date, setDate] = useState(moment().format("YYYY-MM-DDTHH:mm:ss"));
+  const [Description, setDescription] = useState("");
+  const userId = useSelector(selectedLoginId);
+  const amountInputRef = useRef<TextInput>(null); 
+  const userDetails = useSelector(selectUserDetailsData);
+  const dispatch = useDispatch();
+  const route = useRoute<addBillsPaymentsProp>();
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    trigger,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      amount: 0,
+      description: "",
+      selectedCard: {},
+    },
+    resolver: yupResolver(validationSchema),
+  });
+  const TransactionGroup = route.params;
+  const transactionGroupsArray =  TransactionGroup.TransactionGroup
+  ? [TransactionGroup.TransactionGroup]
+  : defaultTransactionGroup;
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const countryData = useSelector(selectCountryData);
+  useEffect(() => {
+    if (userId) {
+      dispatch({ type: "FetchCountryData" });
+      dispatch({ type: "FetchCardData" });
+    }
+    console.log("TransactionGroups", TransactionGroup);
+    console.log("currency symbol", countryData);
+    console.log(errors.amount);
+    amountInputRef.current?.focus();
+  }, [userId, dispatch]);
 
-    const handleAddBill = () => {
-        const numericAmount = parseFloat(amount); 
-        const numericBalance = parseFloat(selectedCard!.balance);
+  const handleAddBill = () => {
+    if (!selectedCard) {
+      Alert.alert("Please select a card");
+      return;
+ }
+
+    const numericAmount = parseFloat(amount);
+    const numericBalance = parseFloat(selectedCard.balance);
+
+    if (numericBalance < numericAmount) {
+      Snackbar.show({
+        text: `Insufficient Balance ${selectedCard.balance}`,
+        backgroundColor: colors.red,
+        duration: 1500,
+      });
+    } else {
+      const updatedBalance = (numericBalance - numericAmount).toFixed(2);
+      updateCardDetails(updatedBalance, selectedCard._id);
+      console.log(transactionGroupsArray[0]);
+      createExpenses(
+        userDetails[0]._id,
+        Description,
+        numericAmount,
+        transactionGroupsArray[0],
+        selectedCard,
+        date
+      );
+      dispatch({ type: "FetchExpensesData" });
+      setAmount("");
+      setDescription("");
+      setSelectedCard(null);
+      Snackbar.show({
+        text: `Bill Successfully Added`,
+        backgroundColor: colors.green,
+        duration: 1500,
+      });
+      setModalVisible(false); 
+    }
+  };
+
+  const maskCardNumber = (number: string) => {
+    const lastFourDigits = number.slice(-4);
+    return "XXXX " + lastFourDigits;
+  };
+
+  const handleCardSelect = (creditCard: Card, id: string) => {
+    console.log(creditCard);
+    setSelectedCard(creditCard);
+    setSelectedCardId(id);
+    setModalVisible(false);
+  };
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+  };
+  const handleChange = (text: string) => {
+    let rawValue = text.replace(/,/g, '');
     
-        if (numericBalance < numericAmount) {
-            Snackbar.show({
-                text: `Insufficient Balance ${selectedCard!.balance} `,
-                backgroundColor: colors.red,
-                duration: 1500,
-              });
-        } else {
-            const updatedBalance = (numericBalance - numericAmount).toFixed(2); 
-            updateCardDetails(updatedBalance,selectedCard!._id);
-            createExpenses(
-                userDetails[0]._id,
-                Description,
-                numericAmount,
-                TransactionGroup?.TransactionGroup,
-                selectedCard,
-                date);
-            dispatch({type: 'FetchExpensesData'});
-            setAmount('');
-            setCategory(billCategories[0].value);
-            Snackbar.show({
-                text: `Bill Successfully Added`,
-                backgroundColor: colors.green,
-                duration: 1500,
-              });
-        }
-    };
-    
-    const maskCardNumber = (number: string) => {
-        const lastFourDigits = number.slice(-4);
-        return 'XXXX ' + lastFourDigits;
-    };
+    let numericValue = parseFloat(rawValue);
+    if (numericValue < 0) {
+      numericValue = 0;
+    }
+    const formattedValue = numericValue.toLocaleString('en-IN');
+    setAmount(formattedValue);
+  };
+  
+  
+  
 
-    const handleCardSelect = (creditCard: Card) => {
-        setSelectedCard(creditCard);
-        setModalVisible(false);
-    };
-    const handleModalClose = () => {
-        setModalVisible(false)
-        navigation.navigate('homeScreen');
-    };
-    const formatNumber = (num: string) => {
-        if (!num) return num;
-        return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    };
-    
-    const removeCommas = (str: string) => {
-        return str.replace(/,/g, '');
-    };
-    const handleAmountChange = (value: string) => {
-        const numericValue = removeCommas(value);
-        setAmount(numericValue);
-    };
-    
+  const formatNumber = (value: string) => {
+    if (!value) return '';
+    const numericValue = value.replace(/[^0-9]/g, '');
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
 
-    const renderCard = ({ item }: { item: Card }) => (
-        <LinearGradient
-            key={item.id}
-            colors={[item.cardColor, '#000']}
-            start={{ x: 0.0, y: 0.0 }}
-            end={{ x: 1.0, y: 1.0 }}
-            style={styles.card}
-        >
-            <TouchableOpacity onPress={() => handleCardSelect(item)}>
-                <Text style={styles.cardNumber}>{maskCardNumber(item.number)}</Text>
-                <Text style={styles.cardType}>{item.type}</Text>
-                <Text style={styles.cardExpiry}>{item.expiry}</Text>
-                <Text style={styles.cardName}>{item.name}</Text>
-                <Image style={{ height: 40, width: 40, marginTop: 40, marginLeft: 10 }} source={require('../../../assets/creditcardChip1.png')} />
-            </TouchableOpacity>
-        </LinearGradient>
-    );
+  const removeCommas = (str: string) => {
+    return str.replace(/,/g, "");
+  };
+  const parseAmount = (value: string) => {
+    return value.replace(/,/g, ''); 
+  };
 
-    const RenderModal = () => {
-        return(
-        <Modal
-            visible={modalVisible}
-            animationType="slide"
-            transparent={true}
-        >
-            <BlurView
-            style={styles.blurContainer}
-            blurType="dark"
-            blurAmount={20}
-            >
-                <TouchableOpacity onPress={handleModalClose} style={styles.closeBlurArea}>
-                </TouchableOpacity>
-            </BlurView>
-            <View style={styles.modalContainer}>
-                <View style={styles.centeredView}>
-                <View style={{backgroundColor: colors.white,height: 5, width: 50,borderRadius: 10}}></View>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                <Text style={styles.Modalheading}>Select a Card</Text>
-                {/* <TouchableOpacity onPress={handleModalClose} style={styles.closeButton}>
-                    <Icon name="close" size={24} color={colors.white} />
-                </TouchableOpacity> */}
-                </View>
-                <View style={styles.cardListContainer}>
-                    <FlatList
-                        data={cards}
-                        renderItem={renderCard}
-                        keyExtractor={(item) => item._id.toString()}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                    />
-                </View>
-            </View>
-        </Modal>
-        );
-    };
-
-    return (
-        <>
-        <View style={styles.container}>
-            <Text style={styles.heading}>Bills & Payments</Text>
-            {selectedCard ?
-                <LinearGradient
-                key={selectedCard.id}
-                colors={[selectedCard.cardColor, '#000']}
-                start={{ x: 0.0, y: 0.0 }}
-                end={{ x: 1.0, y: 1.0 }}
-                style={styles.cardContainer}
-            >
-            <Text style={styles.cardNumber}>{maskCardNumber(selectedCard.number)}</Text>
-            <Text style={styles.cardType}>{selectedCard.type}</Text>
-            <Text style={styles.cardExpiry}>{selectedCard.expiry}</Text>
-            <Text style={styles.cardName}>{selectedCard.name}</Text>
-            <Image style={{ height: 40, width: 40, marginTop: 40, marginLeft: 10 }} source={require('../../../assets/creditcardChip1.png')} />
-            </LinearGradient>
-            : <View></View>
-            }
-            <View>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter Amount"
-                    keyboardType="numeric"
-                    value={formatNumber(amount)}
-                    onChangeText={handleAmountChange}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Description"
-                    onChangeText={(value) => setDescription(value)}
-                />
-                <View style={styles.tagContainer}>
-                    {transactionGroupsArray.map((group, index) => (
-                <View key={index} style={[styles.tag, { backgroundColor: colors.white }]}>
-                    <Icon name={group.icon} size={18} color={colors.black} />
-                    <Text style={styles.tagText}>{group.name}</Text>
-                    <Icon name="check-circle" size={20} color={colors.black} />
-                </View>
-            ))}
+  const renderCard = ({ item }: { item: Card }) => (
+    <TouchableOpacity
+      style={[
+        styles.card,
+      ]}
+      onPress={() => handleCardSelect(item,item._id.toString())}
+    >
+      <View style={styles.cardContent}>
+        <View>
+          <Text style={styles.cardType}>{item.type}</Text>
+          <Text style={styles.cardNumber}>{maskCardNumber(item.number)}</Text>
         </View>
+        <Icon
+          name={selectedCardId == item._id.toString() ? "radiobox-marked" : "radiobox-blank"}
+          size={24}
+          color={selectedCardId == item._id.toString() ? "#FFFFFF" : "#CCCCCC"}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+  
 
+const RenderModal = () => (
+  <Modal visible={modalVisible} animationType="slide" transparent={true}>
+    <View style={styles.modalContainer}>
+      <View style={styles.centeredView}>
+        <View
+          style={{
+            backgroundColor: colors.white,
+            height: 5,
+            width: 50,
+            borderRadius: 10,
+          }}
+        ></View>
+      </View>
+      <Text style={styles.Modalheading}>Select a Card</Text>
+      <FlatList
+        data={cards}
+        renderItem={renderCard}
+        keyExtractor={(item) => item._id.toString()}
+        showsHorizontalScrollIndicator={false}
+      />
+    </View>
+  </Modal>
+);
+
+  const handleNavigation = () => {
+    navigation.navigate("homeScreen");
+  };
+
+  return (
+    <>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.HeaderContainer} onPress={handleNavigation}>
+          <MaterialIcon name="arrow-back-ios" size={20} color={colors.white} style={styles.headerBackIcon} />
+          <Text style={styles.HeadingText}>Bills & Payments</Text>
+        </TouchableOpacity>
+        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+        <View style={styles.tagContainer}>
+          {transactionGroupsArray.map((group, index) => (
+            <View key={index} style={[styles.tag]}>
+              <Icon name={group.icon} size={100} color={colors.white} />
+              <Text style={styles.tagText}>{group.name}</Text>
             </View>
-
-            <TouchableOpacity style={styles.button} onPress={handleAddBill}>
-                <Text style={styles.buttonText}>Add Bill</Text>
-            </TouchableOpacity>
+          ))}
         </View>
-        <RenderModal />
-        </>
-    );
+        <View style={styles.centeredContainer}>
+        <View style={styles.amountContainer}>
+    <Text style={[styles.currencySymbol, { left: 100 - amount.length*9 }]}>{countryData[0]?.symbol ? countryData[0]?.symbol : '' }</Text>
+    <Controller
+      control={control}
+      name="amount"
+      render={({ field: { onChange, onBlur, value } }) => (
+        <TextInput
+          style={[styles.AmountInput, { width: `${Math.min(amount.length * 10 + 60, 300)}%` }]}
+          ref={amountInputRef}
+          placeholder="0"
+          maxLength={7}
+          keyboardType="numeric"
+          onBlur={() => {
+            onBlur();
+            trigger('amount');
+          }}
+          value={formatNumber(amount)}
+          onChangeText={(text) => {
+            setAmount(text);
+            onChange(parseAmount(text));
+            handleChange(text);
+          }}
+        />
+      )}
+    />
+  </View>
+  {errors.amount && <Text style={styles.errorText}>{errors.amount.message}</Text>}
+      <Controller
+        control={control}
+        name="description"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            style={[styles.input]}
+            placeholder="Add Description"
+            onBlur={onBlur}
+            onChangeText={(text) => {
+              setDescription(text); 
+              onChange(text);
+            }}
+            value={value}
+          />
+        )}
+      />
+      {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
+
+        </View>
+        </ScrollView>
+        {selectedCard && (
+        <TouchableOpacity style={styles.selectedCardView} onPress={() => setModalVisible(true)}>
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+           <View
+          style={{
+            backgroundColor: colors.white,
+            justifyContent: 'center',
+            height: 5,
+            width: 50,
+            borderRadius: 10,
+          }}
+        ></View>
+        </View>
+          <Text style={styles.selectedCardText}>
+            {`${selectedCard.type}`}
+          </Text>
+          <Text style={styles.selectedCardNumber}>
+            {`${selectedCard.number}`}
+          </Text>
+          <Icon
+          name="check-decagram"
+          size={24}
+          color={colors.green}
+          style={{ position: 'absolute', right: 10, top: '65%', transform: [{ translateY: -12 }] }} 
+        />
+        </TouchableOpacity>
+      )}
+        <TouchableOpacity style={styles.AddBillbutton} onPress={handleSubmit((data) => {
+          if (selectedCard) {
+            handleAddBill();
+          } else {
+            setModalVisible(true);
+          }
+        })}
+      >
+          <Text style={styles.buttonText}>Add Bill</Text>
+        </TouchableOpacity>
+      </View>
+      <RenderModal />
+    </>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: colors.black,
-    },
-    heading: {
-        fontSize: 20,
-        marginLeft: 10,
-        color: colors.white,
-        fontFamily: "Poppins-SemiBold",
-    },
-    Modalheading: {
-        fontSize: 20,
-        marginLeft: 10,
-        color: colors.white,
-        fontFamily: "Poppins-SemiBold",
-    },
-    tagContainer:{ flexDirection: 'row',
-     flexWrap: 'wrap',
-      marginVertical: 10
+  headerBackIcon: {
+    margin: 5,
+  },
+  selectedCardView: {
+    backgroundColor: colors.blackBackgroundColor,
+    padding: 15,
+    marginVertical: -10,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  selectedCardText: {
+    fontSize: 16,
+    fontFamily: 'Poppins-Bold',
+    color: colors.white,
+  },
+  selectedCardNumber: {
+    fontSize: 10,
+    color: colors.gray,
+  },
+  HeadingText: {
+    fontSize: 20,
+    color: colors.white,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  HeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: colors.black,
+    justifyContent: "space-between",
+  },
+  Modalheading: {
+    fontSize: 20,
+    marginLeft: 10,
+    color: colors.white,
+    fontFamily: "Poppins-SemiBold",
+  },
+  centeredContainer: {
+    flex: 1,
+    justifyContent: "flex-start",
+  },
+  scrollViewContainer: {
+    flexGrow: 1,
+    padding: 16, 
+    backgroundColor: colors.black, 
+  },
+  tagContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginVertical: 10,
+  },
+  tag: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+    borderRadius: 20,
+    margin: 4,
+  },
+  tagText: {
+    color: colors.white,
+    fontSize: 12,
+    fontFamily: 'Poppins-Medium',
+  },
+  input: {
+    height: 80,
+    textAlign: 'center',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginTop: 15,
+    paddingHorizontal: 10,
+    color: colors.white,
+    fontSize: 15,
+    fontFamily: 'Poppins-Medium',
+  },
+  amountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  currencySymbol: {
+    fontSize: 25,
+    color: '#333',
+  },
+  AmountInput: {
+    flex: 1, 
+    height: 80,
+    textAlign: 'center',
+    fontSize: 40,
+    paddingVertical: 5,
+  },
+  blurContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+  closeBlurArea: {
+    flex: 1,
+    zIndex: 1,
+  },
+  modalContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.blackBackgroundColor,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 10,
+    zIndex: 2,
+  },
+  centeredView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  cardListContainer: {
+    marginTop: 40,
+  },
+  button: {
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  AddBillbutton: {
+    width: "100%",
+    height: 50,
+    backgroundColor: colors.white, 
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    marginBottom: 16, 
+  },
+  buttonText: {
+    color: colors.black,
+    fontSize: 16,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  card: {
+    padding: 15,
+    borderRadius: 15,
+    backgroundColor: colors.lightgray,
+    marginBottom: 10,
+  },
+  cardContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  cardType: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.white,
+  },
+  cardNumber: {
+    fontSize: 14,
+    color: colors.gray,
+  },
+  radioButton: {
+    marginLeft: 10,
+  },
+  errorInput: { 
+    borderColor: "red"
+   },
+  errorText: { 
+    color: "red",
+     marginBottom: 10,
+     fontSize: 12,
+     textAlign: 'center',
      },
-    tag: { 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        padding: 8, 
-        borderRadius: 20,
-         margin: 4 
-        },
-    tagIcon: { marginRight: 4 },
-    tagText: { color: colors.black, fontSize: 12,fontFamily: 'Poppins-Medium' },
-    input: {
-        height: 50,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 8,
-        marginTop: 15,
-        paddingHorizontal: 10,
-        color: colors.white,
-        fontFamily: 'Poppins-Medium',
-    },
-    blurContainer: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 1,
-    },
-    closeBlurArea: {
-        flex: 1,
-        zIndex: 1,
-    },
-    modalContainer: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: '#333',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        padding: 10,
-        zIndex: 2,
-    },
-    centeredView: {
-        justifyContent: 'center',
-        alignItems: 'center', // Centers the view horizontally and vertically
-        marginBottom: 20, // Adds some space below the centered view
-    },
-    closeButton: {
-        position: 'absolute',
-        right: 10,
-        padding: 5,
-    },
-    cardListContainer: {
-        flexDirection: 'row',
-        marginTop: 40,
-    },
-    card: {
-        height: 200,
-        width: 300,
-        padding: 10,
-        borderRadius: 10,
-        elevation: 20,
-        margin: 5,
-    },
-    cardContainer: {
-        height: 200,
-        width: '100%',
-        padding: 10,
-        borderRadius: 10,
-        elevation: 20,
-        marginBottom: 10,
-    },
-    button: {
-        backgroundColor: colors.white,
-        padding: 10,
-        borderRadius: 8,
-        alignItems: 'center',
-        marginTop: 20,
-        // marginLeft: 10,
-    },
-    buttonText: {
-        color: colors.black,
-        fontSize: 16,
-        fontFamily: 'Poppins-SemiBold',
-    },
-    cardNumber: {
-        fontSize: 18,
-        fontFamily: 'Poppins-Medium',
-        color: '#fff',
-        letterSpacing: 2,
-        marginBottom: 15,
-    },
-    cardName: {
-        fontSize: 16,
-        fontFamily: 'Poppins-Medium',
-        color: '#fff',
-    },
-    cardType: {
-        fontSize: 16,
-        color: '#fff',
-        fontFamily: 'Poppins-Bold',
-        position: 'absolute',
-        top: 5,
-        right: 20,
-    },
-    cardExpiry: {
-        fontSize: 16,
-        fontFamily: 'Poppins-Medium',
-        color: '#fff',
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
-    },
-    dropdown: {
-        backgroundColor: colors.black,
-        borderColor: colors.white,
-        // margin: 10,
-        marginTop: 10,
-        // width: 320,
-        
-    },
-    dropdownText: {
-        color: colors.white,
-        fontFamily: 'Poppins-Medium',
-        fontSize: 14,
-    },
-    dropdownLabel: {
-        color: colors.white,
-        fontFamily: 'Poppins-Medium',
-        fontSize: 14,
-    },
-    dropdownContainer: {
-        backgroundColor: colors.black,
-        borderColor: colors.white,
-        elevation: 10,
-        fontFamily: 'Poppins-Medium',
-        borderRadius: 20,
-        marginTop: 10,
-        
-    },
-    customItemLabelStyle:{
-        color: colors.white
-    }
 });
-
 
 export default AddBillPayments;

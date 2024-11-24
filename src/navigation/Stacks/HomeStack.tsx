@@ -5,6 +5,7 @@ import CardList from "../../components/CardListComponent/CardList";
 import CardDetails from "../../screens/carddetailsScreen/CardDetails";
 import AddBillPayments from "../../screens/addBillsPayments/addBillsPayments";
 import CreateTransactionGroups from "../../screens/createTransactionGroups/CreateTransactionGroups";
+import PaymentsScreen from "../../components/payments/payments";
 
 const Stack = createStackNavigator();
 const HomeStack = () => {
@@ -22,7 +23,7 @@ const HomeStack = () => {
         <Stack.Screen name="cardsDetails" component={CardDetails} />
         <Stack.Screen name="addBillsPayments" component={AddBillPayments} />
         <Stack.Screen name="createTransactionsGroup" component={CreateTransactionGroups} />
-
+        <Stack.Screen name="payments" component={PaymentsScreen} />
 
         </Stack.Navigator>
     );
