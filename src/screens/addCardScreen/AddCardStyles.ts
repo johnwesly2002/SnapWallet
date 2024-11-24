@@ -131,7 +131,102 @@ HeaderContainer: {
   Icon: {
     marginLeft: 10,
   },
-  
+  optionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  ScanoptionButton: {
+    backgroundColor: Colors.white,
+    borderRadius: 40,
+    paddingVertical: 16,
+    paddingHorizontal: 15,
+    marginVertical: 10,
+    alignItems: 'center',
+    width: '20%',
+  },
+  optionButton: {
+    backgroundColor: Colors.white,
+    borderRadius: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    marginVertical: 10,
+    alignItems: 'center',
+    width: '80%',
+  },
+  optionText: {
+    fontSize: 18,
+    color: Colors.black,
+    fontWeight: '600',
+  },
+  OrText: {
+    fontSize: 18,
+    color: Colors.gray,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  scanContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  scanText: {
+    fontSize: 20,
+    color: Colors.white,
+    marginBottom: 20,
+  },
+  scanButton: {
+    backgroundColor: Colors.primary,
+    borderRadius: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+  },
+  scanButtonText: {
+    fontSize: 18,
+    color: Colors.black,
+    fontWeight: '600',
+  },
+  camera: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  scanOverlay: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -150 }, { translateY: -100 }],
+    width: 300,
+    height: 200,
+    borderWidth: 2,
+    borderColor: '#fff',
+    borderRadius: 10,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlayText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  cancelButton: {
+    position: 'absolute',
+    bottom: 50,
+    left: '50%',
+    transform: [{ translateX: -50 }],
+    padding: 10,
+    backgroundColor: Colors.red,
+    borderRadius: 5,
+  },
+  cancelText: {
+    color: '#fff',
+    fontSize: 16,
+  },
 });
 
 export default styles;

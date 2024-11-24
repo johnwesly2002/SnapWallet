@@ -53,7 +53,7 @@ export default function CardList() {
   
 
   return (
-    <View style={[styles.root, { height: viewAll ? 'auto' : 440}]}>
+    <View style={[styles.root, { height: viewAll ? 'auto' : 370}]}>
       <View style={styles.topSection}>
         <Text style={styles.headingText}>Your Cards</Text>
         <View style={styles.buttonContainer}>
@@ -92,6 +92,7 @@ export default function CardList() {
                   cardData={item}
                   cardHeight={cardHeight}
                   cardPadding={cardPadding}
+                  homescreenView = {false}
                 />
               </View>
             )}
@@ -111,6 +112,7 @@ export default function CardList() {
                 cardData={card}
                 cardHeight={cardHeight}
                 cardPadding={cardPadding}
+                homescreenView = {true}
               />
             </View>
           ))}

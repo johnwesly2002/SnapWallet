@@ -32,5 +32,9 @@ export default {
     disableColor: '#A5C9CA',
     darkRed: '#b30000',
     skyBlue: '#87CEEB',
+    blackBackgroundColor: '#10100f',
+    Lightblack: '#333',
+    BlurView: "rgba(0, 0, 0, 0.5)",
+    BlurView2: "rgba(0, 0, 0, 0)"
   };
   
