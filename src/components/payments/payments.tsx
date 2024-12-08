@@ -7,16 +7,18 @@ import colors from "../../constants/colors";
 import { selectedLoginId } from "../../redux/slices/LoginIdSlice";
 import { Image } from "react-native-animatable";
 import { selectCountryData } from "../../redux/slices/countrySlice";
+import { selectCurrencySymbol } from "../../redux/slices/countrynameSlice";
 const PaymentsScreen = () => {
     const dispatch = useDispatch();
     const countryData = useSelector(selectCountryData);
     const userId = useSelector(selectedLoginId);
+    const currentSymbol = useSelector(selectCurrencySymbol);
     useEffect(() => {
         if(userId){
         dispatch({ type: "FetchCountryData" });
         dispatch({type: 'FetchExpensesData'});
         }
-    },[dispatch,userId]);
+    },[dispatch,userId,currentSymbol]);
     const maskCardNumber = (number: String) => {
         const lastFourDigits = number.slice(-4);
         const maskedNumber = 'XXXX ' + lastFourDigits;
@@ -34,7 +36,7 @@ const PaymentsScreen = () => {
             <Text style={{fontFamily:'Poppins-Regular', fontSize: 10}}>{maskCardNumber(item.card.number)}</Text>
             </View>
             <View style={{marginTop:7}}>
-            <Text>{countryData[0]?.symbol ? countryData[0]?.symbol : ''}{item.amount}</Text>
+            <Text>{currentSymbol ? currentSymbol : ''}{item.amount}</Text>
             </View>
         </View>
         );

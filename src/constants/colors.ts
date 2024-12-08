@@ -19,7 +19,7 @@ export default {
     containerColor: '#3E54AC1A',
     cardcontainer: 'rgba(255, 255, 255, 0.7)',
     borderColor: '#8E8E8E',
-    lightgray: 'rgba(255, 255, 255, 0.20)',
+    lightgray: 'rgba(255, 255, 255, 0.12)',
     shadowcolor: 'rgba(0, 0, 0, 0.75)',
     blacklight: 'rgba(5, 5, 5, 0.5)',
     sliver: '#f2f2f2',

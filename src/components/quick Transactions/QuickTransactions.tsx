@@ -45,8 +45,8 @@ const QuickTransactions = () => {
 
     const renderCard = ({ item }: any) => {
         return (
-            <TouchableOpacity style={[styles.card, {backgroundColor: colors.white}]} onPress={() => handleQuickTransactions(item)}>
-                <Icon name={item.icon} size={20} color={colors.black} />
+            <TouchableOpacity style={[styles.card, {backgroundColor: colors.Lightblack}]} onPress={() => handleQuickTransactions(item)}>
+                <Icon name={item.icon} size={20} color={colors.white} />
                 <Text style={styles.cardText}>{item.name}</Text>
             </TouchableOpacity>
         );
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     cardText: {
-        color: colors.black,
+        color: colors.white,
         fontSize: 8,
         fontFamily: "Poppins-Medium",
         marginTop: 2,

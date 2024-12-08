@@ -1,9 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
@@ -11,205 +10,264 @@ import {
   Alert,
 } from 'react-native';
 import FlipCard from 'react-native-flip-card';
-import ImagePicker from 'react-native-image-crop-picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../../constants/colors';
 import styles from './AddCardStyles';
 import useAddCard from './useAddCard';
-
+import { Controller } from 'react-hook-form';
+import { Input } from 'react-native-elements';
+import * as Animatable from 'react-native-animatable';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import colors from '../../constants/colors';
 const AddCardScreen = () => {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const {
     cardData,
     handleInputChange,
     handleAddCard,
     flipCard,
     formatNumber,
+    control,
+    handleSubmit,
+    errors,
+    removeCommas,
   } = useAddCard();
 
-  const handleScanCardOption = () => {
-    Alert.alert(
-      'Choose Option',
-      'How do you want to add your card?',
-      [
-        { text: 'Pick from Gallery', onPress: handlePickFromGallery },
-        { text: 'Scan Card', onPress: handleCaptureCard },
-        { text: 'Cancel', style: 'cancel' },
-      ],
-      { cancelable: true }
-    );
+  const onSubmit = (data: any) => {
+    console.log('Validated Data:', data);
+    handleAddCard();
   };
-
-  const handlePickFromGallery = useCallback(() => {
-    ImagePicker.openPicker({
-      cropping: false,
-    })
-      .then((image) => {
-        console.log('Image selected:', image);
-        const scannedCardData = {
-          number: '1234 5678 9876 5432', // example
-          name: 'John Doe',
-          expiry: '12/25',
-          cvc: '123',
-        };
-        handleInputChange('number', scannedCardData.number);
-        handleInputChange('name', scannedCardData.name);
-        handleInputChange('expiry', scannedCardData.expiry);
-        handleInputChange('cvc', scannedCardData.cvc);
-      })
-      .catch((error) => {
-        console.error('Error picking image:', error);
-      });
-  }, []);
-
-  const handleCaptureCard = useCallback(async () => {
-    try {
-      console.log('Capturing front side of the card...');
-      const frontImage = await ImagePicker.openCamera({
-        cropping: false,
-      });
-      console.log('Front side image captured:', frontImage);
-  
-      const frontCardData = {
-        number: '5678 1234 4321 8765',
-        name: 'Jane Doe',
-        expiry: '11/24',
-      };
-  
-      handleInputChange('number', frontCardData.number);
-      handleInputChange('name', frontCardData.name);
-      handleInputChange('expiry', frontCardData.expiry);
-  
-      console.log('Prompting user to capture back side...');
-      const backImage = await ImagePicker.openCamera({
-        cropping: false,
-      });
-      console.log('Back side image captured:', backImage);
-      const backCardData = {
-        cvc: '456',
-      };
-      handleInputChange('cvc', backCardData.cvc);
-  
-      console.log('Card details captured successfully!');
-    } catch (error) {
-      console.error('Error capturing card:', error);
-    }
-  }, []);
-  
 
   return (
     <>
       <View style={styles.HeaderContainer}>
         <Text style={styles.HeadingText}>Add New Card</Text>
       </View>
-
-      {!selectedOption ? (
-        <View style={styles.optionContainer}>
-          <TouchableOpacity
-            style={styles.ScanoptionButton}
-            onPress={handleScanCardOption}
-          >
-            <Icon name="credit-card-scan-outline" size={30} color={Colors.black} />
-          </TouchableOpacity>
-          <Text style={styles.OrText}>Or</Text>
-          <TouchableOpacity
-            style={styles.optionButton}
-            onPress={() => setSelectedOption('manual')}
-          >
-            <Text style={styles.optionText}>Add Manually</Text>
-          </TouchableOpacity>
-        </View>
-      ) : selectedOption === 'manual' ? (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Manual Card Entry Section */}
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={styles.container}>
-              {/* FlipCard Section */}
-              <View style={styles.cardSection}>
-                <FlipCard
-                  style={styles.cardContainer}
-                  flipHorizontal
-                  flipVertical={false}
-                  perspective={1000}
-                  clickable={false}
-                  flip={cardData.isFlipped}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.container}>
+            <View style={styles.cardSection}>
+            <Animatable.View
+                animation={errors.number ? 'shake' : undefined}
+                duration={500}
+              >
+              <FlipCard
+                style={[styles.cardContainer]}
+                flipHorizontal
+                flipVertical={false}
+                perspective={1000}
+                clickable={false}
+                flip={cardData.isFlipped}
+              >
+                {/* Front of the Card */}
+                <View
+                  style={[styles.cardFront, { backgroundColor: cardData.cardColor || Colors.Lightblack }]}
                 >
-                  <View style={[styles.cardFront, { backgroundColor: cardData.cardColor || '#808080' }]}>
-                    <Text style={styles.cardType}>
-                      {cardData.type ? cardData.type.toUpperCase() : ''}
-                    </Text>
-                    <Text style={styles.cardNumber}>
-                      {cardData.number || '#### #### #### ####'}
-                    </Text>
-                    <Text style={styles.cardHolderName}>
-                      {cardData.name || 'Card Holder'}
-                    </Text>
-                    <Text style={styles.cardExpiry}>
-                      {cardData.expiry || 'MM/YY'}
-                    </Text>
-                  </View>
-                  <View style={[styles.cardBack, { backgroundColor: cardData.cardColor || '#808080' }]}>
-                    <View style={styles.blackStripe}></View>
-                    <View style={styles.whiteBar}>
-                      <Text style={styles.cvvLabel}>CVV</Text>
-                      <Text style={styles.cvv}>{cardData.cvc || '###'}</Text>
-                    </View>
-                  </View>
-                </FlipCard>
-              </View>
+                  <Text
+                    style={[styles.cardNumbercardType]}
+                  >
+                    {cardData.type ? cardData.type.toUpperCase() : ''}
+                  </Text>
+                  <Text
+                    style={[styles.cardNumber]}
+                  >
+                    {cardData.number || 'XXXX XXXX XXXX XXXX'}
+                  </Text>
+                  <Text
+                    style={[styles.cardHolderName]}
+                  >
+                    {cardData.name || 'Card Holder'}
+                  </Text>
+                  <Text
+                    style={[styles.cardExpiry]}
+                  >
+                    {cardData.expiry || 'MM/YY'}
+                  </Text>
+                </View>
 
-              <View style={styles.inputContainer}>
-                <TextInput
-                  placeholder="Card Number"
-                  placeholderTextColor={Colors.white}
-                  style={styles.input}
-                  keyboardType="numeric"
-                  maxLength={16}
-                  onChangeText={(value) => handleInputChange('number', value)}
-                />
-                <TextInput
-                  placeholder="Name on Card"
-                  placeholderTextColor={Colors.white}
-                  style={styles.input}
-                  onChangeText={(value) => handleInputChange('name', value)}
-                />
-                <TextInput
-                  placeholder="Current Balance"
-                  keyboardType="numeric"
-                  placeholderTextColor={Colors.white}
-                  style={styles.input}
-                  value={formatNumber(cardData.balance)}
-                  onChangeText={(value) => handleInputChange('balance', value)}
-                />
-                <View style={styles.row}>
-                  <TextInput
-                    placeholder="MM/YY"
-                    placeholderTextColor={Colors.white}
-                    style={[styles.input, styles.expiryInput]}
-                    maxLength={4}
-                    keyboardType="numeric"
-                    onChangeText={(value) => handleInputChange('expiry', value)}
-                  />
-                  <TextInput
-                    placeholder="CVV"
-                    placeholderTextColor={Colors.white}
-                    style={[styles.input, styles.cvcInput]}
-                    maxLength={3}
-                    keyboardType="numeric"
-                    onFocus={flipCard}
-                    onBlur={flipCard}
-                    onChangeText={(value) => handleInputChange('cvc', value)}
+                {/* Back of the Card */}
+                <View
+                  style={[styles.cardBack, { backgroundColor: cardData.cardColor || Colors.Lightblack }]}
+                >
+                  <View style={styles.blackStripe}></View>
+                  <View style={styles.whiteBar}>
+                    <Text style={styles.cvvLabel}>CVV</Text>
+                    <Text
+                      style={[styles.cvv, errors.cvc && styles.errorHighlight]}
+                    >
+                      {cardData.cvc || '###'}
+                    </Text>
+                  </View>
+                </View>
+              </FlipCard>
+              </Animatable.View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Controller
+                name="number"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <Animatable.View
+                    animation={errors.number ? 'shake' : undefined}
+                    duration={500}
+                  >
+                    <Input
+                      placeholder="Card Number"
+                      placeholderTextColor={Colors.gray}
+                      style={[styles.input, { width: '100%', borderRadius: 10, borderWidth: 2 }]}
+                      keyboardType="numeric"
+                      maxLength={16}
+                      value={value}
+                      onChangeText={(text) => {
+                        onChange(text);
+                        handleInputChange('number', text);
+                      }}
+                      errorMessage={errors.number?.message}
+                      leftIcon={<Icon name="credit-card" size={24} color={Colors.gray} />}
+                    />
+                  </Animatable.View>
+                )}
+              />
+
+              <Controller
+                name="name"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <Animatable.View
+                    animation={errors.name ? 'shake' : undefined}
+                    duration={500}
+                  >
+                    <Input
+                      placeholder="Name on Card"
+                      placeholderTextColor={Colors.gray}
+                      style={[styles.input, { width: '100%', borderRadius: 10, borderWidth: 2 }]}
+                      value={value}
+                      onChangeText={(text) => {
+                        onChange(text);
+                        handleInputChange('name', text);
+                      }}
+                      errorMessage={errors.name?.message}
+                      leftIcon={<Icon name="account" size={24} color={Colors.gray} />}
+                    />
+                  </Animatable.View>
+                )}
+              />
+
+              <Controller
+                name="balance"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <Animatable.View
+                    animation={errors.balance ? 'shake' : undefined}
+                    duration={500}
+                  >
+                    <Input
+                      placeholder="Current Balance"
+                      keyboardType="numeric"
+                      placeholderTextColor={Colors.gray}
+                      style={[styles.input, { width: '100%', borderRadius: 10, borderWidth: 2 }]}
+                      value={formatNumber(value)}
+                      onChangeText={(text) => {
+                        onChange(text);
+                        handleInputChange('balance', text);
+                      }}
+                      errorMessage={errors.balance?.message}
+                      leftIcon={<Icon name="currency-usd" size={24} color={Colors.gray} />}
+                    />
+                  </Animatable.View>
+                )}
+              />
+
+              <View style={styles.row}>
+                <View style={styles.errorContainer}>
+                  <Controller
+                    name="expiry"
+                    control={control}
+                    rules={{
+                      required: 'Expiry is required',
+                      validate: (value) => {
+                        const regex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+                        if (!regex.test(value)) {
+                          return 'Invalid expiry format (MM/YY)';
+                        }
+                        return true;
+                      },
+                    }}
+                    render={({ field: { onChange, value } }) => (
+                      <Animatable.View
+                        animation={errors.expiry ? 'shake' : undefined}
+                        duration={500}
+                      >
+                        <Input
+                          placeholder="MM/YY"
+                          placeholderTextColor={Colors.gray}
+                          style={[styles.input, { width: '100%', borderRadius: 10, borderWidth: 2 }]}
+                          maxLength={5}
+                          keyboardType="numeric"
+                          value={value}
+                          onChangeText={(text) => {
+                            let formattedText = text.replace(/[^0-9]/g, '');
+                            if (formattedText.length > 2) {
+                              formattedText = `${formattedText.slice(0, 2)}/${formattedText.slice(2, 4)}`;
+                            }
+                            onChange(formattedText);
+                            handleInputChange('expiry', text);
+                          }}
+                          errorMessage={errors.expiry?.message}
+                          leftIcon={<Icon name="calendar" size={24} color={Colors.gray} />}
+                        />
+                      </Animatable.View>
+                    )}
                   />
                 </View>
-                <TouchableOpacity style={styles.AddCardButton} onPress={handleAddCard}>
-                  <Text style={styles.AddCardButtonText}>Add Card</Text>
-                  <Icon style={styles.Icon} name="arrow-right-thin" size={30} color={Colors.black} />
-                </TouchableOpacity>
+
+                <View style={styles.errorContainer}>
+                  <Controller
+                    name="cvc"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <Animatable.View
+                        animation={errors.cvc ? 'shake' : undefined}
+                        duration={500}
+                      >
+                        <Input
+                          placeholder="CVV"
+                          placeholderTextColor={Colors.gray}
+                          style={[styles.input, { width: '100%', borderRadius: 10 }]}
+                          maxLength={3}
+                          keyboardType="numeric"
+                          value={value}
+                          onFocus={flipCard}
+                          onBlur={flipCard}
+                          onChangeText={(text) => {
+                            onChange(text);
+                            handleInputChange('cvc', text);
+                          }}
+                          errorMessage={errors.cvc?.message}
+                          leftIcon={<Icon name="lock" size={24} color={Colors.gray} />}
+                        />
+                      </Animatable.View>
+                    )}
+                  />
+                </View>
               </View>
+
+              <TouchableOpacity
+                style={styles.AddCardButton}
+                onPress={handleSubmit(onSubmit)}
+              >
+                <Text style={styles.AddCardButtonText}>Add Card</Text>
+                <MaterialIcon
+                  style={styles.Icon}
+                  name="arrow-forward-ios"
+                  size={23}
+                  color={Colors.black}
+                />
+              </TouchableOpacity>
             </View>
-          </TouchableWithoutFeedback>
-        </ScrollView>
-      ) : null}
+          </View>
+        </TouchableWithoutFeedback>
+      </ScrollView>
     </>
   );
 };

@@ -5,10 +5,16 @@ import LoginIdReducer from "./slices/LoginIdSlice";
 import transactionGroupsSlice from "./slices/transactionGroupsSlice";
 import ExpensesSlice from './slices/expensesSlice';
 import countrySlice from "./slices/countrySlice";
+import userNameReducer from "./slices/usernameSlice";
+import countryNameReducer from "./slices/countrynameSlice";
+import profilePicReducer from "./slices/userPictureSlice";
 const rootReducer = combineReducers({
     user: userReducer,
     CardAdd: cardSlice,
     LoginId: LoginIdReducer,
+    userName: userNameReducer,
+    ProfilePic: profilePicReducer,
+    countryName: countryNameReducer,
     transactionGroups: transactionGroupsSlice,
     expenses: ExpensesSlice,
     country: countrySlice,

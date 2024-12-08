@@ -35,28 +35,28 @@ const styles = StyleSheet.create({
     elevation: 20
   },
   cardNumber: {
-    fontSize: 18,
-    fontFamily: 'IBMPlexMono-Medium',
+    fontSize: 15,
+    fontFamily: 'Orbitron-Medium',
     color: '#fff',
     letterSpacing: 2,
     marginBottom: 15,
   },
   cardName: {
     fontSize: 16,
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'Orbitron-Regular',
     color: '#fff',
   },
   cardType:{
     fontSize: 16,
     color: '#fff',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Orbitron-ExtraBold',
     position: 'absolute',
     top: 5,
     right: 20,
   },
   cardExpiry: {
     fontSize: 16,
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'Orbitron-Regular',
     color: '#fff',
     position: 'absolute',
     bottom: 20,
