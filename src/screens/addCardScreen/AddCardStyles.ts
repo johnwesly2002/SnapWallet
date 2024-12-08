@@ -3,9 +3,10 @@ import Colors from "../../constants/colors";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 10,
     backgroundColor: Colors.black,
   },
+  
   HeadingText:{
     fontSize: 20,
     marginLeft: 10,
@@ -18,7 +19,7 @@ HeaderContainer: {
    padding: 10,
 },
   cardSection: {
-    marginBottom: 30,
+    marginBottom: 25,
   },
   cardContainer: {
     width: '100%',
@@ -32,51 +33,68 @@ HeaderContainer: {
     overflow: 'hidden',
     position: 'relative',
   },
+  cardNumbercardType: {
+    position: 'absolute',
+    top: 10,
+    right: 20,
+    fontSize: 16,
+    color: Colors.lightWhite,
+    fontFamily: 'Orbitron-Medium',
+  },
   cardType: {
     position: 'absolute',
     top: 10,
     right: 20,
     fontSize: 16,
-    color: '#fff',
-    fontWeight: 'bold',
+    color: Colors.lightWhite,
+    fontFamily: 'Orbitron-Medium',
   },
   cardNumber: {
     fontSize: 18,
-    color: '#fff',
-    letterSpacing: 2,
+    color: Colors.lightWhite,
+    fontFamily: 'Orbitron-Medium',
     marginBottom: 15,
   },
   cardHolderName: {
     fontSize: 16,
-    color: '#fff',
+    color: Colors.lightWhite,
+    fontFamily: 'Orbitron-Medium',
   },
   cardExpiry: {
     fontSize: 16,
-    color: '#fff',
+    color: Colors.lightWhite,
+    fontFamily: 'Orbitron-Medium',
     position: 'absolute',
     bottom: 20,
     right: 20,
   },
-  inputContainer: {
-    flex: 1,
-  },
-  input: {
-    height: 50,
-    borderColor: '#ffff',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    color: Colors.white,
-  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
   },
+  inputContainer: {
+    width: '100%',
+    marginTop: -20,
+  },
+  input: {
+    backgroundColor: Colors.blackBackgroundColor,
+    color: Colors.lightWhite,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 16,
+    fontFamily: 'Poppins-Light',
+    marginBottom: 5,
+    marginVertical: 5,
+  },
+  
   expiryInput: {
-    width: '48%',
+    width: '100%',
   },
   cvcInput: {
+    width: '100%',
+  },
+  errorContainer: {
     width: '48%',
   },
   cardBack: {
@@ -84,7 +102,7 @@ HeaderContainer: {
     justifyContent: 'center',
     padding: 20,
     borderRadius: 10,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.darkGray,
     overflow: 'hidden',
   },
   blackStripe: {
@@ -113,15 +131,15 @@ HeaderContainer: {
     color: Colors.black,
     marginLeft: 'auto',
   },
-  AddCardButton: {
-    flexDirection: 'row',
-    backgroundColor: Colors.white,
-    borderRadius: 5,
-    marginTop: '5%',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 8,
-  },
+  // AddCardButton: {
+  //   flexDirection: 'row',
+  //   backgroundColor: Colors.white,
+  //   borderRadius: 5,
+  //   marginTop: '5%',
+  //   alignItems: 'center',
+  //   justifyContent: 'space-between',
+  //   padding: 8,
+  // },
   AddCardButtonText: {
     color: Colors.black,
     fontFamily: 'Poppins-SemiBold',
@@ -227,6 +245,97 @@ HeaderContainer: {
     color: '#fff',
     fontSize: 16,
   },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+  },
+  AddCardButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    alignSelf: 'center',
+  },
+  
+  cardError: {
+    borderColor: 'red',
+    borderWidth: 2,
+  },
+  errorHighlight: {
+    color: Colors.darkRed,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  
+  BackButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.gray, // Neutral color for "Back"
+    borderRadius: 10,
+    paddingVertical: 12,
+    marginHorizontal: 5,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3, // Android shadow effect
+  },
+  
+  NextButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.primary, // Highlighted color for "Next"
+    borderRadius: 10,
+    paddingVertical: 12,
+    marginHorizontal: 5,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3, // Android shadow effect
+  },
+  
+  ButtonText: {
+    fontSize: 16,
+    color: Colors.white, // Text color
+    fontWeight: 'bold',
+  },
+  navigationButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+
+  navigationButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  disabledButton: {
+    backgroundColor: Colors.gray,
+  },
+  navigationButtonText: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  
 });
 
 export default styles;

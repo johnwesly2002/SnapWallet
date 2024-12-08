@@ -30,6 +30,35 @@ export const getCurrencyById = async (currencyId: Realm.BSON.ObjectId) => {
     const currency = realm.objectForPrimaryKey('Currency', currencyId);
     return currency;
   };
+  export const updateCountryById = async (
+    currencyId: Realm.BSON.ObjectId,
+    newCurrencyData: {code?: string; symbol?: string; name?: string;country?: string},
+  ) => {
+    const realm = await getDetailsfromRealm();
+    try {
+      realm.write(() => {
+        const currency = realm.objectForPrimaryKey('Country', currencyId);
+        if (currency) {
+          if (newCurrencyData.code) {
+            currency.code = newCurrencyData.code;
+          }
+          if (newCurrencyData.symbol) {
+            currency.symbol = newCurrencyData.symbol;
+          }
+          if (newCurrencyData.name) {
+            currency.name = newCurrencyData.name;
+          }
+          if (newCurrencyData.country) {
+            currency.country = newCurrencyData.country;
+          }
+        } else {
+          console.error('Currency not found.');
+        }
+      });
+    } catch (error) {
+      console.error('Error updating Currency:', error);
+    }
+  };
   
   export const getCurrencyByUserId = async (userId: Realm.BSON.ObjectId) => {
     const realm = await getDetailsfromRealm();

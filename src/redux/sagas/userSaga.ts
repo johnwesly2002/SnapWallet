@@ -4,6 +4,8 @@ import { createUserRequest, createUserSuccess, createUserFailure } from '../slic
 import { createUser, getUsers } from '../../services/userService'; // Import your Realm service
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setLoginId } from '../slices/LoginIdSlice';
+import { setUserName } from '../slices/usernameSlice';
+import { setprofilePic } from '../slices/userPictureSlice';
 
 // Define the structure of action payload
 interface CreateUserAction {
@@ -18,8 +20,9 @@ function* handleUserdetails(): Generator<any, void, any> {
       if (users.length === 0) {
         throw new Error("No users found.");
       }
-      
       yield put(setLoginId(String(users[0]?._id)));
+      yield put(setUserName(users[0]?.username));
+      yield put(setprofilePic(users[0]?.profilePic));
       yield put(createUserSuccess(users));
     } catch (error: any) {
       console.error('Error fetching users:', error.message);

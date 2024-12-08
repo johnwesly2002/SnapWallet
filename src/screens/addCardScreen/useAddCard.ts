@@ -4,6 +4,10 @@ import { selectUserDetailsData } from "../../redux/slices/userSlice";
 import { CardAdd } from "../../services/cardService";
 import Snackbar from "react-native-snackbar";
 import colors from "../../constants/colors";
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { useFocusEffect } from "@react-navigation/native";
 
 const useAddCard = () => {
     const [cardData, setCardData] = useState({
@@ -16,13 +20,66 @@ const useAddCard = () => {
         balance: '',
         isFlipped: false,
       });
+      
+    const cardSchema = yup.object().shape({
+      number: yup
+      .string()
+      .required('Card number is required')
+      .matches(/^\d{16}$/, 'Card number must be 16 digits'),
+    name: yup.string().required('Name on card is required'),
+    balance: yup
+      .string()
+      .required('Balance is required')
+      .matches(/^\d+$/, 'Balance must be a valid number'),
+    expiry: yup
+      .string()
+      .required('Expiry date is required')
+      .matches(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/, 'Invalid expiry format (MM/YY)'),
+    cvc: yup
+      .string()
+      .required('CVV is required')
+      .matches(/^\d{3}$/, 'CVV must be 3 digits'),
+    });
+      const {
+        control,
+        handleSubmit,
+        reset,
+        formState: { errors },
+      } = useForm({
+        resolver: yupResolver(cardSchema),
+        defaultValues: {
+          number: '',
+          name: '',
+          expiry: '',
+          cvc: '',
+          balance: '',
+        },
+      });
     const dispatch = useDispatch();
     const userDetails = useSelector(selectUserDetailsData);
-    useEffect(() => {
-      dispatch({type: 'fetchUsers'});
-    },[dispatch])
-    
-      // Function to format the card number into groups of 4 digits
+    useFocusEffect(
+      React.useCallback(() => {
+        reset({
+          number: '',
+          name: '',
+          balance: '',
+          expiry: '',
+          cvc: '',
+        });
+        setCardData({
+          number: '',
+          name: '',
+          expiry: '',
+          cvc: '',
+          type: '',
+          cardColor: '',
+          balance: '',
+          isFlipped: false,
+        });
+        dispatch({ type: 'fetchUsers' });
+      }, [reset, dispatch])
+    );
+
       const formatCardNumber = (number: any) => {
         const sanitizedNumber = number.replace(/\s+/g, '').replace(/(\d{4})/g, '$1 ').trim(); // Insert space every 4 digits
         return sanitizedNumber;
@@ -140,6 +197,11 @@ const useAddCard = () => {
         handleAddCard,
         flipCard,
         formatNumber,
+        control,
+        handleSubmit,
+        errors,
+        reset,
+        removeCommas,
     };
 };
 export default useAddCard;

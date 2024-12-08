@@ -34,6 +34,7 @@ const RootNavigation = ({ route }: { route: Partial<Route<string>> }) => {
           tabBarHideOnKeyboard: true,
           tabBarInactiveTintColor: Colors.black,
           tabBarActiveTintColor: Colors.primary,
+          swipeEnabled: true,
           tabBarStyle: {
             display: getTabBarVisibility(route),
             height: 60,

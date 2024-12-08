@@ -20,6 +20,9 @@ import Snackbar from "react-native-snackbar";
 import colors from "../../constants/colors";
 import QuickTransactions from "../../components/quick Transactions/QuickTransactions";
 import PaymentsScreen from "../../components/payments/payments";
+import { selectedLoginId } from "../../redux/slices/LoginIdSlice";
+import { selectUserName } from "../../redux/slices/usernameSlice";
+import { selectprofilePic } from "../../redux/slices/userPictureSlice";
 
 type RootStackParamList = {
   addBillsPayments:  any | null;
@@ -33,14 +36,13 @@ const HomeScreen = () => {
   const userDetails = useSelector(selectUserDetailsData);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const scrollY = useRef(0);
+  const userId = useSelector(selectedLoginId);
+  const userName = useSelector(selectUserName);
+  const profilePic = useSelector(selectprofilePic);
+  
   useEffect(() => {
     dispatch({ type: "fetchUsers" });
-    Snackbar.show({
-      text: `Welcome Back`,
-      backgroundColor: colors.skyBlue,
-      duration: 1500,
-    });
-  }, [dispatch]);
+  }, [dispatch,userId,userName,profilePic]);
 
   const handleOptionSelect = (option: string) => {
     setShowOptions(false);
