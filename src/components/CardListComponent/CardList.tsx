@@ -39,7 +39,7 @@ export default function CardList() {
     </TouchableOpacity>
       <TouchableOpacity
         style={styles.deleteButton}
-        onPress={() => deleteCard(data.item._id)}
+        onPress={() => deleteCard(data.item._id.toHexString())}
       >
         <Icon name='delete' size={30}></Icon>
         <Text style={styles.deleteText}>Delete</Text>

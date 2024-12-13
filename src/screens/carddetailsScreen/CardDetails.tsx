@@ -16,6 +16,10 @@ import Snackbar from "react-native-snackbar";
 import Colors from "../../constants/colors";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import colors from "../../constants/colors";
+import { ScrollView } from "react-native-gesture-handler";
+import PaymentsScreenByCard from "../../components/paymentsByCard/paymentsByCard";
+import { useSelector } from "react-redux";
+import { selectCurrencySymbol } from "../../redux/slices/countrynameSlice";
 
 export type CardDetailsProp = RouteProp<
   {
@@ -29,40 +33,8 @@ export type CardDetailsProp = RouteProp<
 const CardDetails = () => {
   const route = useRoute<CardDetailsProp>();
   const { cardData } = route.params;
+  const currentCurrencySymbol = useSelector(selectCurrencySymbol);
   const [showSensitiveInfo, setShowSensitiveInfo] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-
-  const flipCard = () => {
-    Animated.timing(rotateAnim, {
-      toValue: isFlipped ? 0 : 1,
-      duration: 1000,
-      easing: Easing.ease,
-      useNativeDriver: true,
-    }).start(() => {
-      setIsFlipped(!isFlipped); 
-    });
-  };
-
-  const rotateYInterpolate = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "360deg"],
-  });
-  
-  const frontOpacity = rotateAnim.interpolate({
-    inputRange: [0, 0.5,1],
-    outputRange: [0, 0, 1],
-  });
-  
-  const backOpacity = rotateAnim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0, 1,0],
-  });
-
-  const cardStyle = {
-    transform: [{ rotateY: rotateYInterpolate }],
-  };
-  // Mask Card Number
   const maskCardNumber = (number: string) => {
     if (showSensitiveInfo) return number;
     return number.slice(0, -4).replace(/\d/g, "X") + number.slice(-4);
@@ -70,7 +42,6 @@ const CardDetails = () => {
   const maskCVC = (cvc: string) => {
     return showSensitiveInfo ? cvc : cvc.replace(/\d/g, 'X');
   };
-  // Handle Copy Function
   const handleCopy = (text: string) => {
     Clipboard.setString(text);
     Snackbar.show({
@@ -80,18 +51,18 @@ const CardDetails = () => {
     });
   };
 
-  useEffect(() => {
-    flipCard();
-  },[])
-
   return (
-    <View>
+    <View style={styles.container}>
       <View style={styles.HeaderContainer}>
         <Text style={styles.HeadingText}>Card Details</Text>
       </View>
-        <Animated.View style={[styles.animatedCard, cardStyle]}>
-          {/* Front Side */}
-          <Animated.View style={[styles.card, { opacity: frontOpacity, backfaceVisibility: 'hidden' }]}>
+      <ScrollView >
+        <View >
+        <Text style={styles.BalanceText}>Total Balance</Text>
+        <Text style={styles.Balance}>{currentCurrencySymbol} {cardData?.balance}</Text>
+        </View>
+        <View style={[styles.animatedCard]}>
+          <View style={[styles.card]}>
             <LinearGradient
               colors={[cardData.cardColor, "#000"]}
               start={{ x: 0.0, y: 0.0 }}
@@ -109,10 +80,9 @@ const CardDetails = () => {
               <Text style={styles.cardExpiry}>{cardData.expiry}</Text>
               <Text style={styles.cardName}>{cardData.name}</Text>
             </LinearGradient>
-          </Animated.View>
+          </View>
 
-          {/* Back Side */}
-          <Animated.View style={[styles.card, { opacity: backOpacity, backfaceVisibility: 'hidden', position: 'absolute' }]}>
+          {/* <View style={[styles.card]}>
             <LinearGradient
               colors={[cardData.cardColor, "#000"]}
               start={{ x: 0.0, y: 0.0 }}
@@ -125,10 +95,8 @@ const CardDetails = () => {
                 <Text style={styles.cvv}>{cardData.cvc ? cardData.cvc : '###'}</Text>
               </View>
             </LinearGradient>
-          </Animated.View>
-        </Animated.View>
-
-      {/* Additional Details Section */}
+        </View> */}
+        </View>
       <View style={styles.subSection}>
         <Text style={styles.subHeadingText}>Details</Text>
         <TouchableOpacity
@@ -141,7 +109,6 @@ const CardDetails = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Card Number Input */}
       <View style={styles.inputContainer}>
         <TextInput style={styles.input} value={maskCardNumber(cardData.number)} editable={false} />
         <TouchableOpacity onPress={() => handleCopy(cardData.number)}>
@@ -149,7 +116,6 @@ const CardDetails = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Card Name Input */}
       <View style={styles.inputContainer}>
         <TextInput style={styles.input} value={cardData.name} editable={false} />
         <TouchableOpacity onPress={() => handleCopy(cardData.name)}>
@@ -174,6 +140,9 @@ const CardDetails = () => {
           </TouchableOpacity>
         </View>
       </View>
+      <Text style={styles.SubText}>Payments of Cards</Text>
+      <PaymentsScreenByCard cardNumber={cardData._id} />
+      </ScrollView>
     </View>
   );
 };
@@ -185,12 +154,35 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontFamily: "Poppins-SemiBold",
   },
+  container: {
+    flex: 1,
+    position: 'relative',
+},
+  SubText: {
+    fontSize: 15,
+    marginLeft: 20,
+    color: Colors.darkGray,
+    fontFamily: "Poppins-SemiBold",
+  },
   subHeadingText: {
-    fontSize: 20,
-    marginLeft: 10,
+    fontSize: 15,
+    marginLeft: 20,
     marginTop: -5,
+    color: Colors.darkGray,
+    fontFamily: "Poppins-SemiBold",
+  },
+  Balance: {
+    fontSize: 30,
+    marginLeft: 20,
     color: Colors.white,
     fontFamily: "Poppins-SemiBold",
+  },
+  BalanceText: {
+    fontSize: 14,
+    marginLeft: 20,
+    marginTop: -5,
+    color: Colors.darkGray,
+    fontFamily: "Poppins-Medium",
   },
   HeaderContainer: {
     flexDirection: "row",
