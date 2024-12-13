@@ -19,7 +19,8 @@ const RootNavigation = ({ route }: { route: Partial<Route<string>> }) => {
   const getTabBarVisibility = (route: Partial<Route<string>>) => {
     const routeName = getFocusedRouteNameFromRoute(route);
     if (routeName?.includes('createTransactionsGroup') ||
-        routeName?.includes('addBillsPayments')) {
+        routeName?.includes('addBillsPayments') || 
+        routeName?.includes('cardsDetails')) {
       return 'none';
     }
     return 'flex';
