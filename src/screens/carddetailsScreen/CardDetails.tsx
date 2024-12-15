@@ -18,8 +18,9 @@ import { RouteProp, useRoute } from "@react-navigation/native";
 import colors from "../../constants/colors";
 import { ScrollView } from "react-native-gesture-handler";
 import PaymentsScreenByCard from "../../components/paymentsByCard/paymentsByCard";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectCurrencySymbol } from "../../redux/slices/countrynameSlice";
+import { getCardById, updateCardById } from "../../services/cardService";
 
 export type CardDetailsProp = RouteProp<
   {
@@ -35,6 +36,25 @@ const CardDetails = () => {
   const { cardData } = route.params;
   const currentCurrencySymbol = useSelector(selectCurrencySymbol);
   const [showSensitiveInfo, setShowSensitiveInfo] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentCardData, setCurrentCardData] = useState(cardData);
+  const [editableCardData, setEditableCardData] = useState({
+    balance: currentCardData.balance,
+    name: currentCardData.name,
+    expiry: currentCardData.expiry,
+  });
+  const fetchUpdatedCardData = async () => {
+    const updatedCardData = await getCardById(cardData._id);
+    if (updatedCardData?.length) {
+      setCurrentCardData(updatedCardData[0]);
+    }
+  };
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    fetchUpdatedCardData();
+  }, []);
+
   const maskCardNumber = (number: string) => {
     if (showSensitiveInfo) return number;
     return number.slice(0, -4).replace(/\d/g, "X") + number.slice(-4);
@@ -42,10 +62,26 @@ const CardDetails = () => {
   const maskCVC = (cvc: string) => {
     return showSensitiveInfo ? cvc : cvc.replace(/\d/g, 'X');
   };
+  const formatNumber = (value: string) => {
+    if (!value) return '';
+    const numericValue = value.replace(/[^0-9]/g, '');
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
   const handleCopy = (text: string) => {
     Clipboard.setString(text);
     Snackbar.show({
       text: "Copied Successfully",
+      backgroundColor: Colors.green,
+      duration: 1000,
+    });
+  };
+  const handleEditChanges = () => {
+    updateCardById(editableCardData.name, editableCardData.expiry, editableCardData.balance, cardData._id);
+    dispatch({type: 'FetchCardData'});
+    fetchUpdatedCardData();
+    setIsEditing(false);
+    Snackbar.show({
+      text: "Card details updated successfully",
       backgroundColor: Colors.green,
       duration: 1000,
     });
@@ -59,12 +95,12 @@ const CardDetails = () => {
       <ScrollView >
         <View >
         <Text style={styles.BalanceText}>Total Balance</Text>
-        <Text style={styles.Balance}>{currentCurrencySymbol} {cardData?.balance}</Text>
+        <Text style={styles.Balance}>{currentCurrencySymbol} {formatNumber(currentCardData?.balance)}</Text>
         </View>
         <View style={[styles.animatedCard]}>
           <View style={[styles.card]}>
             <LinearGradient
-              colors={[cardData.cardColor, "#000"]}
+              colors={[currentCardData.cardColor, "#000"]}
               start={{ x: 0.0, y: 0.0 }}
               end={{ x: 1.0, y: 1.0 }}
               style={styles.cardContent}
@@ -74,51 +110,85 @@ const CardDetails = () => {
                 source={require("../../../assets/creditcardChip1.png")}
               />
               <Text style={styles.cardNumber}>
-                {maskCardNumber(cardData.number)}
+                {maskCardNumber(currentCardData.number)}
               </Text>
-              <Text style={styles.cardType}>{cardData.type}</Text>
-              <Text style={styles.cardExpiry}>{cardData.expiry}</Text>
-              <Text style={styles.cardName}>{cardData.name}</Text>
+              <Text style={styles.cardType}>{currentCardData.type}</Text>
+              <Text style={styles.cardExpiry}>{currentCardData.expiry}</Text>
+              <Text style={styles.cardName}>{currentCardData.name}</Text>
             </LinearGradient>
           </View>
-
-          {/* <View style={[styles.card]}>
-            <LinearGradient
-              colors={[cardData.cardColor, "#000"]}
-              start={{ x: 0.0, y: 0.0 }}
-              end={{ x: 1.0, y: 1.0 }}
-              style={styles.cardContent}
-            >
-            <View style={styles.blackStripe}></View>
-              <View style={styles.whiteBar}>
-                <Text style={styles.cvvLabel}>CVV</Text>
-                <Text style={styles.cvv}>{cardData.cvc ? cardData.cvc : '###'}</Text>
-              </View>
-            </LinearGradient>
-        </View> */}
         </View>
       <View style={styles.subSection}>
         <Text style={styles.subHeadingText}>Details</Text>
+        <View style={{flexDirection: 'row', marginRight: 20}}>
         <TouchableOpacity
           style={styles.showButton}
           onPress={() => setShowSensitiveInfo(!showSensitiveInfo)}
         >
+          <Icon name="circle-edit-outline" size={20} color={colors.white} />
           <Text style={styles.showText}>
             {showSensitiveInfo ? "Hide" : "Show"}
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => {
+            if(isEditing) {
+               handleEditChanges();
+              }else{
+                  setIsEditing(!isEditing)
+          }}}
+        >
+          <Icon name="content-save-edit" size={20} color={colors.white} />
+          <Text style={styles.editButtonText}>{isEditing ? "Save" : "Edit"}</Text>
+        </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.inputContainer}>
-        <TextInput style={styles.input} value={maskCardNumber(cardData.number)} editable={false} />
-        <TouchableOpacity onPress={() => handleCopy(cardData.number)}>
+        <TextInput style={styles.input} value={maskCardNumber(currentCardData.number)} editable={false} />
+        <TouchableOpacity onPress={() => handleCopy(currentCardData.number)}>
           <Icon style={styles.Copyicon} name="content-copy" size={20} color={Colors.white} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.inputContainer}>
-        <TextInput style={styles.input} value={cardData.name} editable={false} />
-        <TouchableOpacity onPress={() => handleCopy(cardData.name)}>
+      {isEditing ? (
+          <TextInput
+            style={styles.input}
+            value={editableCardData.name}
+            onChangeText={(text) =>
+              setEditableCardData((prev) => ({
+                ...prev,
+                name: text,
+              }))
+            }
+          />
+      ) : (
+        <TextInput style={styles.input} value={currentCardData.name} editable={false} />
+      )}
+        <TouchableOpacity onPress={() => handleCopy(currentCardData.name)}>
+          <Icon style={styles.Copyicon} name="content-copy" size={20} color={Colors.white} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.inputContainer}>
+      {isEditing ? (
+          <TextInput
+            style={styles.input}
+            value={formatNumber(editableCardData.balance)}
+            keyboardType="numeric"
+            onChangeText={(text) =>
+              setEditableCardData((prev) => ({
+                ...prev,
+                balance: formatNumber(text),
+              }))
+            }
+          />
+      ) : (
+      <TextInput style={styles.input} value={currentCardData.balance} editable={false} />
+      )
+    }
+        <TouchableOpacity onPress={() => handleCopy(currentCardData.balance)}>
           <Icon style={styles.Copyicon} name="content-copy" size={20} color={Colors.white} />
         </TouchableOpacity>
       </View>
@@ -126,22 +196,42 @@ const CardDetails = () => {
       <View style={styles.expixycvcContainer}>
         {/* Expiry Date Input */}
         <View style={styles.ExpiryCvcinputContainer}>
-          <TextInput style={styles.input} value={cardData.expiry} editable={false} />
-          <TouchableOpacity onPress={() => handleCopy(cardData.expiry)}>
+        {isEditing ? (
+          <TextInput
+            placeholder="MM/YY"
+             maxLength={5}
+             keyboardType="numeric"
+            style={styles.input}
+            value={editableCardData.expiry}
+            onChangeText={(text) => {
+              let formattedText = text.replace(/[^0-9]/g, '');
+              if (formattedText.length > 2) {
+                formattedText = `${formattedText.slice(0, 2)}/${formattedText.slice(2, 4)}`;
+              }
+              setEditableCardData((prev) => ({
+                ...prev,
+                expiry: formattedText,
+              }));
+            }}
+          />
+          ) : (
+          <TextInput style={styles.input} value={currentCardData.expiry} editable={false} />
+          )}
+          <TouchableOpacity onPress={() => handleCopy(currentCardData.expiry)}>
             <Icon style={styles.Copyicon} name="content-copy" size={20} color={Colors.white} />
           </TouchableOpacity>
         </View>
 
         {/* CVC Input */}
         <View style={styles.ExpiryCvcinputContainer}>
-          <TextInput style={styles.input} value={maskCVC(cardData.cvc)} editable={false} />
-          <TouchableOpacity onPress={() => handleCopy(cardData.cvc)}>
+          <TextInput style={styles.input} value={maskCVC(currentCardData.cvc)} editable={false} />
+          <TouchableOpacity onPress={() => handleCopy(currentCardData.cvc)}>
             <Icon style={styles.Copyicon} name="content-copy" size={20} color={Colors.white} />
           </TouchableOpacity>
         </View>
       </View>
       <Text style={styles.SubText}>Payments of Cards</Text>
-      <PaymentsScreenByCard cardNumber={cardData._id} />
+      <PaymentsScreenByCard cardNumber={currentCardData._id} />
       </ScrollView>
     </View>
   );
@@ -203,6 +293,15 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     elevation: 20,
   },
+  editButton: {
+    flexDirection: 'row',
+    borderRadius: 5,
+  },
+  editButtonText: {
+    color: Colors.white,
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 14,
+  },
   cardCVC: {
     fontSize: 18,
     fontFamily: 'Orbitron-Medium',
@@ -259,6 +358,7 @@ const styles = StyleSheet.create({
   showButton: {
     marginRight: 20,
     marginBottom: 20,
+    flexDirection: 'row',
   },
   showText: {
     marginLeft: 10,
@@ -321,6 +421,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: Colors.black,
     marginLeft: 'auto',
+  },
+  saveButton: {
+    backgroundColor: Colors.green,
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  saveButtonText: {
+    color: Colors.white,
+    fontSize: 16,
   },
 });
 

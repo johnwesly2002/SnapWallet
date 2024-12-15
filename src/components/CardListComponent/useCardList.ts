@@ -58,8 +58,6 @@ function useCardList() {
     }
     
     const deleteCard = (cardId: Realm.BSON.ObjectId) => {
-      // console.log(cardId);
-      // Dispatch action to remove the card by its ID
       deletecreditCard(cardId);
       dispatch({type: 'FetchCardData'});
 

@@ -27,6 +27,7 @@ const AddCardScreen = () => {
     flipCard,
     formatNumber,
     control,
+    isValid,
     handleSubmit,
     errors,
     removeCommas,
@@ -253,16 +254,17 @@ const AddCardScreen = () => {
               </View>
 
               <TouchableOpacity
-                style={styles.AddCardButton}
+              style={[styles.AddCardButton, { opacity: isValid ? 1 : 0.5 }]}
                 onPress={handleSubmit(onSubmit)}
+                disabled={!isValid} 
               >
                 <Text style={styles.AddCardButtonText}>Add Card</Text>
-                <MaterialIcon
+                {/* <MaterialIcon
                   style={styles.Icon}
                   name="arrow-forward-ios"
                   size={23}
-                  color={Colors.black}
-                />
+                  color={Colors.white}
+                /> */}
               </TouchableOpacity>
             </View>
           </View>

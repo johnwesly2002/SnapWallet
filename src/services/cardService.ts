@@ -34,7 +34,7 @@ export const CardAdd = async (cardDetails: any, userId: Realm.BSON.ObjectId) => 
 
 export const deletecreditCard = async(CardId: Realm.BSON.ObjectId) => {
     const realm = await getDetailsfromRealm();
-    console.log(CardId);
+    console.log("Card Id",CardId);
     try{
         realm.write(() => {
             const card = realm.objectForPrimaryKey('creditCard',CardId);
@@ -96,10 +96,30 @@ export const updateCardDetails = async(newBalance: string,cardId: Realm.BSON.Obj
                 Card.balance = newBalance;
             }
         })
-
     }catch(error){
         console.log("Error while Updating the Cards details");
     }
 }
-  
+export const updateCardById = async(newName: string,newExpiry: string,newBalance: string,cardId: Realm.BSON.ObjectId) =>{
+    const realm = await getDetailsfromRealm();
+    try{
+        realm.write(() => {
+            const Card = realm.objectForPrimaryKey('creditCard',cardId );
+            if(Card){
+                if(newBalance){
+                Card.balance = newBalance;
+                }
+                if(newName){
+                    Card.name = newName;
+                }
+                if(newExpiry){
+                    Card.expiry = newExpiry;
+                }
+            }
+        })
+    }catch(error){
+        console.log("Error while Updating the Cards details");
+    }
+}
+
 

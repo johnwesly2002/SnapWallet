@@ -35,7 +35,7 @@ const QuickTransactions = () => {
     };
 
     const handleQuickTransactions = (TransactionGroup: transactionGroups) => {
-        navigation.navigate("addBillsPayments", {TransactionGroup});
+        navigation.navigate("addBillsPayments", {TransactionGroup: TransactionGroup});
     };
 
     const handleNavigateToCreateTransactionGroup = () => {
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     loadingText: {
         color: colors.white,
@@ -139,5 +139,6 @@ const styles = StyleSheet.create({
     },
     Iconheader: {
         // marginRight: 10,
+        color: colors.white,
     }
 });

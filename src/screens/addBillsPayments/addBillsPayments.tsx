@@ -25,7 +25,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { updateCardDetails } from "../../services/cardService";
 import Snackbar from "react-native-snackbar";
 import moment from "moment";
-import { createExpenses } from "../../services/expensesService";
+import { createExpenses, updateExpenseById } from "../../services/expensesService";
 import { selectUserDetailsData } from "../../redux/slices/userSlice";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import { selectCountryData } from "../../redux/slices/countrySlice";
@@ -56,6 +56,7 @@ export type addBillsPaymentsProp = RouteProp<
   {
     addBillsPayments: {
       TransactionGroup: any;
+      existingPayment?: any;
     };
   },
   "addBillsPayments"
@@ -106,6 +107,7 @@ const AddBillPayments = () => {
     resolver: yupResolver(validationSchema),
   });
   const TransactionGroup = route.params;
+  const existingPayment = route.params.existingPayment;
   const transactionGroupsArray =  TransactionGroup.TransactionGroup
   ? [TransactionGroup.TransactionGroup]
   : defaultTransactionGroup;
@@ -116,18 +118,26 @@ const AddBillPayments = () => {
       dispatch({ type: "FetchCountryData" });
       dispatch({ type: "FetchCardData" });
     }
-    console.log("TransactionGroups", TransactionGroup);
-    console.log("currency symbol", countryData);
-    console.log(errors.amount);
+
+    if (route.params.existingPayment) {
+    setAmount(existingPayment.amount.toString());
+    setDescription(existingPayment.Description);
+    setSelectedCard(existingPayment.card);
+    setSelectedCardId(existingPayment.card._id);
+
+    setValue('amount', existingPayment.amount.toString());
+    setValue('description', existingPayment.Description);
+    setValue('selectedCard', existingPayment.card);
+    }
+
     amountInputRef.current?.focus();
-  }, [userId, dispatch]);
+  }, [userId, dispatch, route.params]);
 
   const handleAddBill = () => {
     if (!selectedCard) {
       Alert.alert("Please select a card");
       return;
  }
-
     const numericAmount = parseFloat(amount);
     const numericBalance = parseFloat(selectedCard.balance);
 
@@ -141,6 +151,16 @@ const AddBillPayments = () => {
       const updatedBalance = (numericBalance - numericAmount).toFixed(2);
       updateCardDetails(updatedBalance, selectedCard._id);
       console.log(transactionGroupsArray[0]);
+      if(route.params.existingPayment){
+        updateExpenseById(
+        existingPayment._id,
+        Description,
+        numericAmount,
+        transactionGroupsArray[0],
+        selectedCard,
+        existingPayment.date,
+      );
+      }else{
       createExpenses(
         userDetails[0]._id,
         Description,
@@ -149,6 +169,7 @@ const AddBillPayments = () => {
         selectedCard,
         date
       );
+    }
       dispatch({ type: "FetchExpensesData" });
       setAmount("");
       setDescription("");
@@ -185,7 +206,7 @@ const AddBillPayments = () => {
       numericValue = 0;
     }
     const formattedValue = numericValue.toLocaleString('en-IN');
-    setAmount(formattedValue);
+    setAmount(parseAmount(text));
   };
   
   
@@ -227,7 +248,7 @@ const AddBillPayments = () => {
   
 
 const RenderModal = () => (
-  <Modal visible={modalVisible} animationType="slide" transparent={true}>
+  <Modal visible={modalVisible} animationType="slide" transparent={true} onRequestClose={handleModalClose}>
     <View style={styles.modalContainer}>
       <View style={styles.centeredView}>
         <View
@@ -278,16 +299,18 @@ const RenderModal = () => (
       name="amount"
       render={({ field: { onChange, onBlur, value } }) => (
         <TextInput
-          style={[styles.AmountInput, { width: `${Math.min(amount.length * 10 + 60, 300)}%` }]}
+          style={[styles.AmountInput, { width: `${Math.min(amount.length * 10 + 60, 300)}%`, color: existingPayment ? colors.gray : colors.lightWhite, }]}
           ref={amountInputRef}
           placeholder="0"
           maxLength={7}
+          placeholderTextColor={colors.lightWhite}
           keyboardType="numeric"
           onBlur={() => {
             onBlur();
             trigger('amount');
           }}
           value={formatNumber(amount)}
+          editable={!existingPayment}
           onChangeText={(text) => {
             setAmount(text);
             onChange(parseAmount(text));
@@ -305,12 +328,13 @@ const RenderModal = () => (
           <TextInput
             style={[styles.input]}
             placeholder="Add Description"
+            placeholderTextColor={colors.lightWhite}
             onBlur={onBlur}
+            value={Description}
             onChangeText={(text) => {
               setDescription(text); 
               onChange(text);
             }}
-            value={value}
           />
         )}
       />
@@ -319,7 +343,9 @@ const RenderModal = () => (
         </View>
         </ScrollView>
         {selectedCard && (
-        <TouchableOpacity style={styles.selectedCardView} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity style={[styles.selectedCardView, {backgroundColor: existingPayment ? colors.loadingcolor : colors.blackBackgroundColor }]} onPress={() => {
+          if (!existingPayment) setModalVisible(true);
+        }}>
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
            <View
           style={{
@@ -349,7 +375,15 @@ const RenderModal = () => (
           if (selectedCard) {
             handleAddBill();
           } else {
+            if(cards.length > 0){
             setModalVisible(true);
+            }else{
+              Snackbar.show({
+                text: "No cards Present to make Bills and Payments",
+                backgroundColor: colors.red,
+                duration: 1000,
+            });
+            }
           }
         })}
       >
@@ -366,7 +400,6 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   selectedCardView: {
-    backgroundColor: colors.blackBackgroundColor,
     padding: 15,
     marginVertical: -10,
     borderTopLeftRadius: 8,
@@ -454,6 +487,7 @@ const styles = StyleSheet.create({
     flex: 1, 
     height: 80,
     textAlign: 'center',
+    color: colors.lightWhite,
     fontSize: 40,
     paddingVertical: 5,
   },

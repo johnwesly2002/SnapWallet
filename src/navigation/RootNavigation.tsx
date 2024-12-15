@@ -34,7 +34,8 @@ const RootNavigation = ({ route }: { route: Partial<Route<string>> }) => {
           headerShown: false,
           tabBarHideOnKeyboard: true,
           tabBarInactiveTintColor: Colors.black,
-          tabBarActiveTintColor: Colors.primary,
+          tabBarActiveTintColor: Colors.white,
+          tabBarShowLabel:false,
           swipeEnabled: true,
           tabBarStyle: {
             display: getTabBarVisibility(route),
@@ -61,11 +62,19 @@ const RootNavigation = ({ route }: { route: Partial<Route<string>> }) => {
             tabBarIcon: ({ focused }) => {
               if (!isFocused) return null;
               return (
+                <View style={{ alignItems: 'center' }}>
+                {focused && <View style={{
+                  width: 50,
+                  height: 2, 
+                  backgroundColor: Colors.white,
+                  marginBottom: 5, 
+                  borderRadius: 2,}} />}
                 <MaterialCommunityIcon
                   name="home"
                   size={30}
-                  color={focused ? Colors.primary : Colors.gray}
+                  color={focused ? Colors.white : Colors.gray}
                 />
+              </View>
               );
             },
           }}
@@ -77,11 +86,19 @@ const RootNavigation = ({ route }: { route: Partial<Route<string>> }) => {
             tabBarIcon: ({ focused }) => {
               if (!isFocused) return null;
               return (
+                <View style={{ alignItems: 'center' }}>
+                {focused && <View style={{
+                   width: 50,
+                   height: 2,  
+                  backgroundColor: Colors.white,
+                  marginBottom: 5, 
+                  borderRadius: 2,}} />}
                 <MaterialCommunityIcon
                   name="credit-card-plus"
                   size={30}
-                  color={focused ? Colors.primary : Colors.gray}
+                  color={focused ? Colors.white : Colors.gray}
                 />
+                </View>
               );
             },
           }}
@@ -93,11 +110,19 @@ const RootNavigation = ({ route }: { route: Partial<Route<string>> }) => {
             tabBarIcon: ({ focused }) => {
               if (!isFocused) return null;
               return (
+                <View style={{ alignItems: 'center' }}>
+                {focused && <View style={{
+                  width: 50,
+                  height: 2,  
+                  backgroundColor: Colors.white,
+                  marginBottom: 5, 
+                  borderRadius: 2,}} />}
                 <MaterialIcon
                   name="person"
                   size={30}
-                  color={focused ? Colors.primary : Colors.gray}
+                  color={focused ? Colors.white : Colors.gray}
                 />
+                </View>
               );
             },
           }}

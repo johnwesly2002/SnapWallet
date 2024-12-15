@@ -15,6 +15,17 @@ import { selectprofilePic, setprofilePic } from '../../redux/slices/userPictureS
 import { updateCountryById } from '../../services/countryService';
 import { selectCountry, selectCountryName, selectCurrencyId, selectCurrencySymbol, setcountryData } from '../../redux/slices/countrynameSlice';
 import {countryList} from "../../constants/countries";
+import colors from '../../constants/colors';
+import Snackbar from 'react-native-snackbar';
+import { LogoutALL } from '../../services/logoutService';
+import AsyncStorageService from '../../services/AsyncService';
+import { setIsRegister } from '../../redux/slices/registerSlice';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+
+type RootStackParamList = {
+  AuthStack: undefined;
+};
 const ProfileScreen = () => {
     const dispatch = useDispatch();
     const currentUser = useSelector(selectUserDetailsData);
@@ -31,7 +42,6 @@ const ProfileScreen = () => {
             dispatch({ type: "FetchCountryData" });
             dispatch({ type: "FetchCardData" });
           }
-          console.log("CoountryNames",currentCountry,currentCountryData);
     },[dispatch,userId,userName,profilePicture, currentCountry,currentCurrencyId])
   const countryData = useSelector(selectCountryData);
   const [name, setName] = useState(userName || "");
@@ -43,6 +53,7 @@ const ProfileScreen = () => {
   const [carouselVisible, setCarouselVisible] = useState(false);
   const [countryModalVisible, setCountryModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(profilePicture);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { width } = Dimensions.get('window');
   const handleLogout = () => {
     Alert.alert(
@@ -50,7 +61,7 @@ const ProfileScreen = () => {
       'Are you sure you want to logout?',
       [
         { text: 'Cancel', onPress: () => {}, style: 'cancel' },
-        { text: 'Yes, Logout', onPress: () => console.log('User logged out') },
+        { text: 'Yes, Logout', onPress: () => {handleLogoutALL() }},
       ],
       { cancelable: false }
     );
@@ -65,7 +76,11 @@ const ProfileScreen = () => {
       await updateUserByUserId(currentUser[0]?._id, { username: name });
       dispatch(setUserName(name));
       setModalVisible(false);
-      Alert.alert('Success', 'Username updated successfully!');
+      Snackbar.show({
+        text: 'Username updated successfully!',
+        backgroundColor: colors.green,
+        duration: 1500,
+      });
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'Failed to update username.');
@@ -79,7 +94,11 @@ const ProfileScreen = () => {
       setprofilepic(selectedImage);
       setCarouselVisible(false);
       dispatch(setprofilePic(selectedImage));
-      Alert.alert('Success', 'Profile picture updated successfully!');
+      Snackbar.show({
+        text: 'Profile picture updated successfully!',
+        backgroundColor: colors.green,
+        duration: 1500,
+      });
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'Failed to update profile picture.');
@@ -88,16 +107,31 @@ const ProfileScreen = () => {
   
   const handleSavecountry = async () => {
     try {
-      console.log("handleSavecountry",selectedCountry);
-      await updateCountryById(  Realm.BSON.ObjectID.createFromHexString(currentCurrencyId), { code: selectedCountry.currency.code,name: selectedCountry.currency.name,symbol: selectedCountry.currency.symbol,country: selectedCountry.country });
+      const SavingCountryData = selectedCountry[0];
+      await updateCountryById(  Realm.BSON.ObjectID.createFromHexString(currentCurrencyId), { code: SavingCountryData.currency.code,name: SavingCountryData.currency.name,symbol: SavingCountryData.currency.symbol,country: SavingCountryData.country });
       setCountry(selectedCountry);
       setCountryModalVisible(false);
       dispatch(setcountryData(selectedCountry));
-      Alert.alert('Success', 'Profile picture updated successfully!');
+      Snackbar.show({
+        text: 'Country Details Updated successfully!',
+        backgroundColor: colors.green,
+        duration: 3000,
+      });
+      
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'Failed to update profile picture.');
     }
+  };
+  const handleLogoutALL = async () => {
+    console.log("handleFunction");
+    await LogoutALL();
+    await AsyncStorageService.setItem('isRegister', JSON.stringify(false));
+    dispatch(setIsRegister(false));
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'AuthStack' }], 
+  });
   };
   const filteredImageKeys = Object.keys(imagePaths).filter(
     (key) => key !== selectedImage
@@ -155,7 +189,9 @@ const ProfileScreen = () => {
             style={styles.EditProfileImage}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => setCountryModalVisible(true)}>
+        <TouchableOpacity style={styles.button} onPress={() => {
+          setCountryModalVisible(true);
+          }}>
           <View style={{flexDirection: 'column'}}>
           <Text style={styles.buttonText}>Change Country</Text>
           <Text style={styles.buttonsubText}> Changing the country will also update </Text>
@@ -260,7 +296,7 @@ const ProfileScreen = () => {
     </View>
   </View>
 </Modal>
-<Modal visible={countryModalVisible} animationType="slide" transparent={true}>
+<Modal visible={countryModalVisible}  animationType="slide" transparent={true}  >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <FlatList
@@ -269,13 +305,12 @@ const ProfileScreen = () => {
               renderItem={({ item }) => (
                 <View
                   style={styles.countryItem}
-                  // Set selected country
                 >
-                  <TouchableOpacity style={styles.radioContainer} onPress={() => setSelectedCountry(item)} >
+                  <TouchableOpacity style={styles.radioContainer} onPress={() => setSelectedCountry([item])} >
                     <View
                       style={[
                         styles.radioButton,
-                        item.country == selectedCountry.country && styles.selectedRadioButton
+                        item.country == selectedCountry[0].country && styles.selectedRadioButton
                       ]}
                     />
                     <Text style={styles.countryText}>{item.country}</Text>
