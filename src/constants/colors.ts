@@ -35,6 +35,7 @@ export default {
     blackBackgroundColor: '#10100f',
     Lightblack: '#333',
     BlurView: "rgba(0, 0, 0, 0.5)",
-    BlurView2: "rgba(0, 0, 0, 0)"
+    BlurView2: "rgba(0, 0, 0, 0)",
+    darkBlue: '#0077ff',
   };
   

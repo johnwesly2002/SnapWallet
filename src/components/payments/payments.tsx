@@ -10,15 +10,20 @@ import { Image } from "react-native-animatable";
 import { selectCountryData } from "../../redux/slices/countrySlice";
 import { selectCurrencySymbol } from "../../redux/slices/countrynameSlice";
 import moment from "moment";
-import { SwipeListView } from "react-native-swipe-list-view"; // Import SwipeListView
+import { SwipeListView } from "react-native-swipe-list-view";
 import { Colors } from "react-native/Libraries/NewAppScreen";
-
-const PaymentsScreen = ({ navigation } : any) => {
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+type RootStackParamList = {
+  createTransactionsGroup: undefined;
+  addBillsPayments: {TransactionGroup: any,existingPayment: any};
+};
+const PaymentsScreen = () => {
   const dispatch = useDispatch();
   const countryData = useSelector(selectCountryData);
   const userId = useSelector(selectedLoginId);
   const currentSymbol = useSelector(selectCurrencySymbol);
-
+ const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   useEffect(() => {
     if (userId) {
       dispatch({ type: "FetchCountryData" });
@@ -58,8 +63,8 @@ const PaymentsScreen = ({ navigation } : any) => {
     }
   };
 
-  const handleEditPress = (item: { _id: any; }) => {
-    navigation.navigate("AddBillNavigation", { expenseId: item._id });
+  const handleEditPress = (item: any) => {
+    navigation.navigate("addBillsPayments",{TransactionGroup: item.transactionGroup,  existingPayment: item});
   };
 
   const renderExpenseItem = ({ item }: any) => (
@@ -95,16 +100,16 @@ const PaymentsScreen = ({ navigation } : any) => {
           bottom: 0,
         }}
       >
-        <Text style={{ fontFamily: "Poppins-Regular", fontSize: 13 }}>
+        <Text style={{ fontFamily: "Poppins-Regular", fontSize: 13, color: colors.lightWhite }}>
           {truncateDescription(item.Description, 15)}
         </Text>
-        <Text style={{ fontFamily: "Poppins-Regular", fontSize: 10 }}>
+        <Text style={{ fontFamily: "Poppins-Regular", fontSize: 10, color: colors.lightWhite }}>
           {maskCardNumber(item.card.number)} -{" "}
           {moment(item.date).format("DD MMM YYYY")}
         </Text>
       </View>
       <View style={{ marginTop: 7 }}>
-        <Text>
+        <Text style={{ color: colors.lightWhite}}>
           {currentSymbol ? currentSymbol : ""}
           {item.amount}
         </Text>

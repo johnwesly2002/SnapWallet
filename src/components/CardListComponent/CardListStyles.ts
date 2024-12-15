@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   detailsButton: {
-    backgroundColor: colors.blacklight,
+    backgroundColor: colors.gray,
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',

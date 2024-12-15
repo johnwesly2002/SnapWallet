@@ -37,6 +37,42 @@ export const createExpenses =async (userId: any,
     }
 }
 
+export const updateExpenseById = async (
+    expenseId: Realm.BSON.ObjectId,
+    Description: string,
+    amount: number,
+    transactionGroup: transactionGroups,
+    card: any,
+    date: string,
+  ) => {
+    const realm = await getDetailsfromRealm();
+  
+    try {
+      realm.write(() => {
+        const expense = realm.objectForPrimaryKey('Expenses', expenseId);
+        if (expense) {
+          if (expense.transactionGroup) {
+            expense.transactionGroup = transactionGroup;
+          }
+          if (expense.Description) {
+            expense.Description = Description;
+          }
+          if (expense.amount) {
+            expense.amount = amount;
+          }
+          if (expense.date) {
+            expense.date = date;
+          }
+          if (expense.card) {
+            expense.card = card;
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error updating Expense:', error);
+    }
+  };
+
 
 export const getExpensesData =async(userId: Realm.BSON.ObjectId) => {
     const realm = await getDetailsfromRealm();

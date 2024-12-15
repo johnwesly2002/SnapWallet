@@ -90,16 +90,16 @@ const PaymentsScreenByCard = ({ cardNumber }: any) => {
           bottom: 0,
         }}
       >
-        <Text style={{ fontFamily: "Poppins-Regular", fontSize: 13 }}>
+        <Text style={{ fontFamily: "Poppins-Regular", fontSize: 13, color: colors.lightWhite }}>
           {truncateDescription(item.Description, 15)}
         </Text>
-        <Text style={{ fontFamily: "Poppins-Regular", fontSize: 10 }}>
+        <Text style={{ fontFamily: "Poppins-Regular", fontSize: 10, color: colors.lightWhite }}>
         {maskCardNumber(item.card.number)} -{" "}
         {moment(item.date).format("DD MMM YYYY")}
         </Text>
       </View>
       <View style={{ marginTop: 7 }}>
-        <Text>
+        <Text  style={{ color: colors.lightWhite}}>
           {currentSymbol ? currentSymbol : ""}
           {item.amount}
         </Text>

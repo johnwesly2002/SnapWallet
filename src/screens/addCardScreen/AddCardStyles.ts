@@ -141,9 +141,8 @@ HeaderContainer: {
   //   padding: 8,
   // },
   AddCardButtonText: {
-    color: Colors.black,
+    color: Colors.white,
     fontFamily: 'Poppins-SemiBold',
-    flex: 1, 
     fontSize: 18,
   },
   Icon: {
@@ -250,10 +249,10 @@ HeaderContainer: {
     fontSize: 12,
   },
   AddCardButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: Colors.white,
-    borderRadius: 12,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    backgroundColor: Colors.darkBlue,
+    borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

@@ -44,8 +44,9 @@ const useAddCard = () => {
         control,
         handleSubmit,
         reset,
-        formState: { errors },
+        formState: { errors, isValid },
       } = useForm({
+        mode: 'onChange',
         resolver: yupResolver(cardSchema),
         defaultValues: {
           number: '',
@@ -179,10 +180,11 @@ const useAddCard = () => {
           duration: 1500,
         })
       }
-      const formatNumber = (num: string) => {
-        if (!num) return num;
-        return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    };
+      const formatNumber = (value: string) => {
+        if (!value) return '';
+        const numericValue = value.replace(/[^0-9]/g, '');
+        return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      };
     
     const removeCommas = (str: string) => {
         return str.replace(/,/g, '');
@@ -200,6 +202,7 @@ const useAddCard = () => {
         control,
         handleSubmit,
         errors,
+        isValid,
         reset,
         removeCommas,
     };

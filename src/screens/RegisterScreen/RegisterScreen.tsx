@@ -48,7 +48,6 @@ const RegisterScreen = () => {
     };
 
     const handleRegister = async () => {
-        // Add form validation before submitting
         if (!username) {
             Alert.alert("Please fill all fields!");
             return;
@@ -72,10 +71,10 @@ const RegisterScreen = () => {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <TouchableOpacity style={styles.skipContainer} onPress={handleSkip}>
+            {/* <TouchableOpacity style={styles.skipContainer} onPress={handleSkip}>
                 <Text style={styles.skipText}>Skip</Text>
                 <Icon name="keyboard-double-arrow-right" size={25} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <Text style={styles.HeadingText}>Let's Personalize Your Account</Text>
 

@@ -34,14 +34,14 @@ export default function CardList() {
       style={[styles.detailsButton, { height: cardHeight }]} 
       onPress={() => showDetails(data.item)} 
     >
-      <Icon name='credit-card-lock-outline' size={30}></Icon>
+      <Icon name='credit-card-lock-outline' style={{color: colors.white}} size={30}></Icon>
       <Text style={styles.detailsText}>Details</Text>
     </TouchableOpacity>
       <TouchableOpacity
         style={styles.deleteButton}
-        onPress={() => deleteCard(data.item._id.toHexString())}
+        onPress={() => deleteCard(data.item._id)}
       >
-        <Icon name='delete' size={30}></Icon>
+        <Icon name='delete' style={{color: colors.white}} size={30}></Icon>
         <Text style={styles.deleteText}>Delete</Text>
       </TouchableOpacity>
     </View>

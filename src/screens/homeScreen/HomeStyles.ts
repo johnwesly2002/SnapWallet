@@ -9,7 +9,7 @@ export const HomeStyle = StyleSheet.create({
     },
     HeadingText: {
         fontSize: 20,
-        marginLeft: 10,
+        marginLeft: 20,
         color: Colors.white,
         fontFamily: 'Poppins-SemiBold',
     },
