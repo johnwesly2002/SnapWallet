@@ -15,7 +15,6 @@ const AppNavigator = () => {
     const isRegister = useSelector(selectIsRegistered);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Check registration status and load from AsyncStorage
     useEffect(() => {
         const checkRegistrationStatus = async () => {
             try {
