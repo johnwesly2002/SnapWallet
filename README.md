@@ -1,20 +1,20 @@
-<div style="text-align: center;">
+<div align ="center">
   <img src="./assets/App_Logo.png" alt="Example Image" height="130"/>
-  <h1>SnapWallet</h1>
+  <h1 algin= "center">SnapWallet</h1>
   <h4>SnapWallet is a React Native Application, Built for managing and maintaining  the money and credit cards in simple and easy way for daily transactions and history tracking, balance updates.</h4>
 </div>
 
 # ScreenShots
 <div style="display: flex, flex-direction: row; justify-content:center,align-Items:center">
-<img src="./assets/homepageSnapWallet.png" height="300"/>
-<img src="./assets/AddcardFront.png" height="300"/>
-<img src="./assets/addCardBack.png" height="300"/>
-<img src="./assets/quickPaymentHome.png" height="300"/>
-<img src="./assets/profilePage.png" height="300"/>
-<img src="./assets/addBillsPayment1.png" height="300"/>
-<img src="./assets/cardDetails.png" height="300"/>
-<img src="./assets/PaymentsHomePage.png" height="300"/>
-<img src="./assets/quickTransactionEmpty.png" height="300"/>
+<img src="./assets/homepageSnapWallet.png" height="350"/>
+<img src="./assets/AddcardFront.png" height="350"/>
+<img src="./assets/addCardBack.png" height="350" />
+<img src="./assets/quickPaymentHome.png" height="350"/>
+<img src="./assets/profilePage.png" height="350"/>
+<img src="./assets/addBillsPayment1.png" height="350"/>
+<img src="./assets/cardDetails.png" height="350"/>
+<img src="./assets/PaymentsHomePage.png" height="350"/>
+<img src="./assets/quickTransactionEmpty.png" height="350"/>
 
 </div>
 
